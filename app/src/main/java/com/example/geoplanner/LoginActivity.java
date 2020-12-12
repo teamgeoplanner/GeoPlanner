@@ -3,12 +3,16 @@ package com.example.geoplanner;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,6 +33,8 @@ public class LoginActivity extends AppCompatActivity {
     EditText emailID, pass;
     Button btnLogin;
 
+    Dialog dialog;
+
     FirebaseAuth fAuth;
 
     @Override
@@ -44,6 +50,9 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.loginBtn);
 
         fAuth = FirebaseAuth.getInstance();
+
+
+
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -90,16 +99,26 @@ public class LoginActivity extends AppCompatActivity {
         forgotpass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText resetMail = new EditText(view.getContext());
-                AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(view.getContext());
-                passwordResetDialog.setTitle("Reset Password");
-                passwordResetDialog.setMessage("Enter your email to receive reset password link");
-                passwordResetDialog.setView(resetMail);
 
-                passwordResetDialog.setPositiveButton("Reset Password", new DialogInterface.OnClickListener() {
+                dialog = new Dialog(LoginActivity.this);
+                dialog.setContentView(R.layout.forgot_pass_dialog);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.dialog_background));
+                }
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.setCancelable(false);
+
+                Button btnResetPass, btnCancel;
+                final EditText txtEmail;
+
+                btnResetPass = dialog.findViewById(R.id.resetBtn);
+                btnCancel = dialog.findViewById(R.id.cancelBtn);
+                txtEmail = dialog.findViewById(R.id.txtID);
+
+                btnResetPass.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String email = resetMail.getText().toString();
+                    public void onClick(View view) {
+                        String email = txtEmail.getText().toString();
                         fAuth.sendPasswordResetEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -111,17 +130,54 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
+
+                        dialog.dismiss();
                     }
                 });
 
-                passwordResetDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
+                    public void onClick(View view) {
+                        dialog.dismiss();
                     }
                 });
 
-                passwordResetDialog.create().show();
+                dialog.show();
+
+
+//                final EditText resetMail = new EditText(view.getContext());
+//                AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(view.getContext());
+//                passwordResetDialog.setTitle("Reset Password");
+//                passwordResetDialog.setMessage("Enter your email to receive reset password link");
+//                passwordResetDialog.setView(resetMail);
+//                passwordResetDialog.setCancelable(false);   //Clicking outside will not dismiss alertdialog
+//
+//                passwordResetDialog.setPositiveButton("Reset Password", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        String email = resetMail.getText().toString();
+//                        fAuth.sendPasswordResetEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Toast.makeText(LoginActivity.this, "Reset Link Sent! Please check your email", Toast.LENGTH_LONG).show();
+//                            }
+//                        }).addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Toast.makeText(LoginActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                            }
+//                        });
+//                    }
+//                });
+//
+//                passwordResetDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                    }
+//                });
+//
+//                passwordResetDialog.create().show();
             }
         });
 
