@@ -16,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
     TextView register;
     FirebaseAuth fAuth;
 
+    // this is for testing purpose
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
