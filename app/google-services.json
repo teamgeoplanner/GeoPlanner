@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "460150153648",
+    "project_id": "geoplanner-2577c",
+    "storage_bucket": "geoplanner-2577c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460150153648:android:5e829d5ed068986232b675",
+        "android_client_info": {
+          "package_name": "com.example.geoplannerdesign"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460150153648-toddean000gob46jdlneabp1po840ups.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALzdpfl0DalVRNV139EFhtqpoHwGW1q_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460150153648-toddean000gob46jdlneabp1po840ups.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
