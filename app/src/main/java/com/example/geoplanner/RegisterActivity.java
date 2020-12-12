@@ -91,8 +91,23 @@ public class RegisterActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
-                                        Toast.makeText(RegisterActivity.this, "Account Created.", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getApplicationContext(), MainPageActivity.class));
+                                        fAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if(task.isSuccessful()){
+                                                    Toast.makeText(RegisterActivity.this, "Account Created. Check E-mail for Verification Link", Toast.LENGTH_SHORT).show();
+                                                    uName.setText("");
+                                                    emailID.setText("");
+                                                    pass.setText("");
+                                                    //startActivity(new Intent(getApplicationContext(), MainPageActivity.class));
+                                                    FirebaseAuth.getInstance().signOut();
+                                                    //startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                                                    finish();
+                                                }else{
+                                                    Toast.makeText(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
                                     }
                                     else{
                                         Toast.makeText(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
