@@ -114,6 +114,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         String fgtPassEmail = txtEmail.getText().toString();
 
+                        //testing
+
                         if(TextUtils.isEmpty(fgtPassEmail)){
                             txtEmail.setError("Email ID Required!");
                             return;
