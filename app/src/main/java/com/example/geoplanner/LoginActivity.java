@@ -112,8 +112,14 @@ public class LoginActivity extends AppCompatActivity {
                 btnResetPass.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String email = txtEmail.getText().toString();
-                        fAuth.sendPasswordResetEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        String fgtPassEmail = txtEmail.getText().toString();
+
+                        if(TextUtils.isEmpty(fgtPassEmail)){
+                            txtEmail.setError("Email ID Required!");
+                            return;
+                        }
+
+                        fAuth.sendPasswordResetEmail(fgtPassEmail).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(LoginActivity.this, "Reset Link Sent! Please check your email", Toast.LENGTH_LONG).show();
