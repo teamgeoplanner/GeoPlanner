@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/sf_pro_display_thin"
-        android:text="Akshay Patel"
+        android:text="User Name"
         android:textColor="@color/white"
         android:textSize="40dp" />
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/sf_pro_display_thin"
-        android:text="patelakshay6702@gmail.com"
+        android:text="info@example.com"
         android:textColor="@color/white"
         android:textSize="20dp" />
 
