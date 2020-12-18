@@ -36,13 +36,4 @@
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu"/>
 
-<!--    <Button-->
-<!--        android:id="@+id/logoutBtn"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Logout"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
 </androidx.drawerlayout.widget.DrawerLayout>
