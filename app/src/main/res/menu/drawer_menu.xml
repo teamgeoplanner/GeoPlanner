@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="navigation_view">
 
-
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_tasks"
@@ -17,7 +16,7 @@
         <item
             android:id="@+id/nav_automsg"
             android:icon="@drawable/ic_automsg"
-            android:title="Auto_Message" />
+            android:title="Auto-Message" />
     </group>
 
     <item android:title="Account">
