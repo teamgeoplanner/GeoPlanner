@@ -12,16 +12,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/sf_pro_display_thin"
-        android:text="User Name"
+        android:text="Akshay Patel"
         android:textColor="@color/white"
-        android:textSize="50dp" />
+        android:textSize="40dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/sf_pro_display_thin"
-        android:text="emailID"
+        android:text="patelakshay6702@gmail.com"
         android:textColor="@color/white"
-        android:textSize="27dp" />
+        android:textSize="20dp" />
 
 </LinearLayout>
