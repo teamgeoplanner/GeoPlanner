@@ -1,12 +1,12 @@
 package com.example.geoplanner;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -30,7 +30,8 @@ public class MainPageActivity extends AppCompatActivity {
 //            }
 //        });
 
-//        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
     }
 }
