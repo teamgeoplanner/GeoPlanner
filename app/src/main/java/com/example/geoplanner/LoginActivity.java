@@ -93,7 +93,6 @@ public class LoginActivity extends AppCompatActivity {
         forgotpass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 dialog = new Dialog(LoginActivity.this);
                 dialog.setContentView(R.layout.forgot_pass_dialog);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -109,12 +108,14 @@ public class LoginActivity extends AppCompatActivity {
                 btnCancel = dialog.findViewById(R.id.cancelBtn);
                 txtEmail = dialog.findViewById(R.id.txtID);
 
+                if(emailID.getText().toString() != null){
+                    txtEmail.setText(emailID.getText().toString());
+                }
+
                 btnResetPass.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         String fgtPassEmail = txtEmail.getText().toString();
-
-                        //testing
 
                         if(TextUtils.isEmpty(fgtPassEmail)){
                             txtEmail.setError("Email ID Required!");
