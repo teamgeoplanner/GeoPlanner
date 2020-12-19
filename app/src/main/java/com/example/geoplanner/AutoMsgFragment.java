@@ -13,6 +13,7 @@ public class AutoMsgFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //link with xml file
         return inflater.inflate(R.layout.fragment_automsg, container,false);
     }
 }

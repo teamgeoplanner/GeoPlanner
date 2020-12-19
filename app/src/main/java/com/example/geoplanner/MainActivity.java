@@ -16,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
     TextView register;
     FirebaseAuth fAuth;
 
-    // this is for testing purpose
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,28 +24,33 @@ public class MainActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.btnLoginPage);
         register = findViewById(R.id.lnkRegister);
 
-        fAuth = FirebaseAuth.getInstance();
+        fAuth = FirebaseAuth.getInstance();     //Get current firebase instance
 
+        //check if any logged in or not
         if(fAuth.getCurrentUser() != null){
             startActivity(new Intent(getApplicationContext(), MainPageActivity.class));
             finish();
         }
 
+        //Click event on login button.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+                startActivity(intent);      //Redirect to LoginActivity
+                finish();
 
             }
         });
 
+        //Click event on register.
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                startActivity(intent);      //Redirect to RegisterActivity
+                finish();
             }
         });
     }

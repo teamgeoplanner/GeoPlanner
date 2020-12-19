@@ -20,7 +20,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class MainPageActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
 
-//    Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,17 +27,19 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         setContentView(R.layout.activity_main_page);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar); Geoplanner shown in actionbar
+        //setSupportActionBar(toolbar);     //Geoplanner shown in actionbar
 
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Create toggle in Action Bar
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        drawer.addDrawerListener(toggle);       //Add toggle to drawer
+        toggle.syncState();     //Rotate toggle while opening Navigation Panel
 
+        //Open TaskFragment by default
         if (savedInstanceState == null){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_tasks);
@@ -46,8 +47,10 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
     }
 
 
+    //Click event when any item of Navigation Drawer is clicked
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        //Check which item is clicked and open Fragment
         switch (item.getItemId()){
             case R.id.nav_tasks:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).commit();
@@ -68,6 +71,7 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         return true;
     }
 
+    //Event when user clicks Back button
     public void onBackPressed() {
         if(drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);

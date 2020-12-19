@@ -44,8 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
 
 
-        // code to executed on clicking Sign Up button
-
+        //Click event of Register button
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,25 +71,21 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-//                {
-//                    "rules": {
-//                    ".read": "now < 1609871400000",  // 2021-1-6
-//                            ".write": "now < 1609871400000",  // 2021-1-6
-//                }
-//                }
-
+                //Create user account with email and password
                 fAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            User user = new User(name, email);
+                            User user = new User(name, email);      //create instance of User Class
 
+                            //Create record using Uid created in Database from User class
                             FirebaseDatabase.getInstance().getReference("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
+                                        //Send verification link to User's EmailID
                                         fAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -99,10 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                     uName.setText("");
                                                     emailID.setText("");
                                                     pass.setText("");
-                                                    //startActivity(new Intent(getApplicationContext(), MainPageActivity.class));
-                                                    FirebaseAuth.getInstance().signOut();
-                                                    //startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//                                                    finish();
+                                                    FirebaseAuth.getInstance().signOut();   //sign out from user account
                                                 }else{
                                                     Toast.makeText(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                 }
@@ -122,7 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-
+        //Click event of Back Button
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,6 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        //Click event of Login Text
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

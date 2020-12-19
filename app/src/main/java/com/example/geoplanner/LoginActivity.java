@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         pass = findViewById(R.id.txtPass);
         btnLogin = findViewById(R.id.loginBtn);
 
-        fAuth = FirebaseAuth.getInstance();
+        fAuth = FirebaseAuth.getInstance();     //Get current firebase instance
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,13 +69,16 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
+                //For signing in User with email and password.
                 fAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
+                            //Check if email is verified
                             if(fAuth.getCurrentUser().isEmailVerified()) {
                                 Toast.makeText(LoginActivity.this, "Login Successfull!", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(getApplicationContext(), MainPageActivity.class));
+                                finish();
                             }else{
                                 Toast.makeText(LoginActivity.this, "Please verify your E-mail", Toast.LENGTH_SHORT).show();
                                 FirebaseAuth.getInstance().signOut();
@@ -89,16 +92,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //Click event of Forgot Password Button
         forgotpass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Custom Dialog Box
                 dialog = new Dialog(LoginActivity.this);
                 dialog.setContentView(R.layout.forgot_pass_dialog);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.dialog_background));
                 }
                 dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                dialog.setCancelable(false);
+                dialog.setCancelable(false);    //Don't close dialog box on clicking background
 
                 Button btnResetPass, btnCancel;
                 final EditText txtEmail;
@@ -107,10 +112,12 @@ public class LoginActivity extends AppCompatActivity {
                 btnCancel = dialog.findViewById(R.id.cancelBtn);
                 txtEmail = dialog.findViewById(R.id.txtID);
 
+                //Copy email from email text box of login
                 if(emailID.getText().toString() != null){
                     txtEmail.setText(emailID.getText().toString());
                 }
 
+                //Click event of Reset Password Bitton
                 btnResetPass.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -121,6 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
 
+                        //Send reset password link to User's EmailID
                         fAuth.sendPasswordResetEmail(fgtPassEmail).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -137,6 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
 
+                //Click event of Cancel Button
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -148,6 +157,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //Click event of Back Button
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -156,6 +166,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //Click event of Register Text
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
