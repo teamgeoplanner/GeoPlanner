@@ -37,28 +37,30 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
 
-//        name = findViewById(R.id.nav_uName);
-//        emailID = findViewById(R.id.nav_email);
-//
-//        reff = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-//        reff.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                String uname = snapshot.child("name").getValue().toString();
-//                String uemail = snapshot.child("email").getValue().toString();
-//
-//                System.out.println(uname);
-//                System.out.println(uemail);
-//
-//                name.setText(uname);
-//                emailID.setText(uemail);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
+        NavigationView nav_view = findViewById(R.id.nav_view);
+        View header = nav_view.getHeaderView(0);
+        name = header.findViewById(R.id.nav_uName);
+        emailID = header.findViewById(R.id.nav_email);
+
+        reff = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        reff.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String uname = snapshot.child("name").getValue().toString();
+                String uemail = snapshot.child("email").getValue().toString();
+
+                System.out.println(uname);
+                System.out.println(uemail);
+
+                name.setText(uname);
+                emailID.setText(uemail);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
