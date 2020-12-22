@@ -1,4 +1,4 @@
-package com.example.geoplannerdesign;
+package com.example.geoplanner;
 
 import org.junit.Test;
 
