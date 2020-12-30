@@ -21,7 +21,7 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
     @Override
     protected void onBindViewHolder(@NonNull myviewholder holder, int position, @NonNull final model model) {
-        holder.taskName.setText(model.getTName());
+        holder.taskName.setText("○  "+model.getTName());
 
         holder.taskClick.setOnClickListener(new View.OnClickListener() {
             @Override
