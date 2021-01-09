@@ -4,6 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,13 +18,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class TasksFragment extends Fragment {
+    ImageButton btnAdd;
     RecyclerView recyclerView;
     myadapter adapter;
     FirebaseAuth fAuth;
+    EditText txtTask;
+    DatabaseReference taskReff;
+    int countTasks = 0;
 
     @Nullable
     @Override
@@ -38,6 +55,72 @@ public class TasksFragment extends Fragment {
 
         adapter = new myadapter(options);
         recyclerView.setAdapter(adapter);
+
+
+        taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
+
+        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    countTasks = (int) snapshot.getChildrenCount();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+        btnAdd = view.findViewById(R.id.btnAddTask);
+
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext(), R.style.BottomSheetDialogTheme);
+
+                View bottomSheetView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.layout_bottom_sheet, (LinearLayout)view.findViewById(R.id.bottomSheetContainer));
+
+                bottomSheetView.findViewById(R.id.btnAddDate).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getContext(), "Add Date", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                bottomSheetView.findViewById(R.id.btnAddLocation).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getContext(), "Add Location", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                txtTask = bottomSheetView.findViewById(R.id.txtTask);
+
+                bottomSheetView.findViewById(R.id.btnSaveTask).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        model taskObj = new model(txtTask.getText().toString());
+
+                        int taskNo = countTasks + 1;
+
+                        FirebaseDatabase.getInstance().getReference("Tasks")
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .child(String.valueOf(taskNo))
+                                .setValue(taskObj);
+
+                        taskNo = 0;
+                        bottomSheetDialog.dismiss();
+                    }
+                });
+
+                bottomSheetDialog.setContentView(bottomSheetView);
+                bottomSheetDialog.show();
+            }
+        });
 
         return view;
     }

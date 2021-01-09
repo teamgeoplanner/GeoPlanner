@@ -24,7 +24,7 @@
         android:fontFamily="@font/product_sans_bold"
         android:text="GeoPlanner"
         android:textSize="27dp"
-        android:textColor="@color/black"
+        android:textColor="#787878"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
