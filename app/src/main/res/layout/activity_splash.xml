@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashActivity"
-    android:background="@color/dark_blue">
+    tools:context=".SplashActivity">
 
     <ImageView
         android:id="@+id/imgLogo"
@@ -22,10 +21,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="112dp"
-        android:fontFamily="@font/sf_pro_display_light"
+        android:fontFamily="@font/product_sans_bold"
         android:text="GeoPlanner"
-        android:textSize="30dp"
-        android:textColor="@color/white"
+        android:textSize="27dp"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
