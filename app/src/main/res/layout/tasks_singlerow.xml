@@ -9,7 +9,7 @@
     android:paddingBottom="15dp"
     android:id="@+id/taskArea">
 
-    <TextView
+    <CheckBox
         android:id="@+id/txtTaskName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
