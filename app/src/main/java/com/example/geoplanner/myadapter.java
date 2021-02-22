@@ -36,12 +36,12 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
             }
         });
 
-        holder.taskName.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
                 if(compoundButton.isChecked()) {
-                    
+
                 }
 
                 else {
@@ -61,14 +61,16 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
     public class myviewholder extends RecyclerView.ViewHolder {
 
-        CheckBox taskName;
+        TextView taskName;
         RelativeLayout taskClick;
+        CheckBox cb;
 
         public myviewholder(@NonNull View itemView) {
             super(itemView);
 
             taskName = itemView.findViewById(R.id.txtTaskName);
             taskClick = itemView.findViewById(R.id.taskArea);
+            cb = itemView.findViewById(R.id.chkBox);
 
         }
     }

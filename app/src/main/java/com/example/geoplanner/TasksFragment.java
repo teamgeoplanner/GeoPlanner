@@ -1,6 +1,7 @@
 package com.example.geoplanner;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class TasksFragment extends Fragment {
@@ -36,6 +38,7 @@ public class TasksFragment extends Fragment {
     EditText txtTask;
     DatabaseReference taskReff;
     int countTasks = 0;
+    int newID;
 
     @Nullable
     @Override
@@ -103,16 +106,51 @@ public class TasksFragment extends Fragment {
                 bottomSheetView.findViewById(R.id.btnSaveTask).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        model taskObj = new model(txtTask.getText().toString());
+                        final model taskObj = new model(txtTask.getText().toString());
 
-                        int taskNo = countTasks + 1;
 
-                        FirebaseDatabase.getInstance().getReference("Tasks")
-                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .child(String.valueOf(taskNo))
-                                .setValue(taskObj);
+//                        int taskNo = countTasks + 1;
+//
+//                        FirebaseDatabase.getInstance().getReference("Tasks")
+//                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                                .child(String.valueOf(taskNo))
+//                                .setValue(taskObj);
+//
+//                        taskNo = 0;
 
-                        taskNo = 0;
+                        Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByKey().limitToLast(1);
+                        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                String taskID = dataSnapshot.getValue().toString();
+//                                String id = taskID.substring(1,2);
+//                                System.out.println(id);
+//                                newID = Integer.parseInt(id) + 1;
+
+                                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                                    Log.d("User key", child.getKey());
+                                    Log.d("User val", child.child("tname").getValue().toString());
+
+                                    String id = child.getKey();
+                                    newID = Integer.parseInt(id) + 1;
+
+                                    System.out.println(newID);
+
+                                    FirebaseDatabase.getInstance().getReference("Tasks")
+                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                            .child(String.valueOf(newID))
+                                            .setValue(taskObj);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                // Handle possible errors.
+                            }
+                        });
+
+
+
                         bottomSheetDialog.dismiss();
                     }
                 });

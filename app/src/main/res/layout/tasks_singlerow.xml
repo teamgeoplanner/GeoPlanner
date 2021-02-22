@@ -10,12 +10,24 @@
     android:id="@+id/taskArea">
 
     <CheckBox
+        android:id="@+id/chkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:textColor="@color/black"
+        android:layout_marginLeft="24dp"
+        android:text="" />
+
+    <TextView
         android:id="@+id/txtTaskName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24dp"
         android:fontFamily="@font/sf_pro_display_light"
         android:textColor="@color/black"
-        android:text="Task" />
+        android:text="Task"
+        android:layout_toRightOf="@id/chkBox"
+        android:paddingLeft="10dp"/>
 
 </RelativeLayout>
