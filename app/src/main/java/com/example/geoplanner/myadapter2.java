@@ -171,11 +171,64 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
     }
 
+    Object deletedTask = null;
+    String deletedKey = null;
+
     @NonNull
     @Override
     public myviewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tasks_singlerow, parent, false);
         return new myviewholder(view);
+    }
+
+    public void copyItem(final int position) {
+        Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
+        uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                deletedTask = getSnapshots().getSnapshot(position).getValue();
+                deletedKey = getSnapshots().getSnapshot(position).getKey();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void undoItem(final int position) {
+        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+
+                Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
+                lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        FirebaseDatabase.getInstance().getReference("Tasks")
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .child("checked")
+                                .child(deletedKey)
+                                .setValue(deletedTask);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // Handle possible errors.
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     public class myviewholder extends RecyclerView.ViewHolder {

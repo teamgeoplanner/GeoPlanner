@@ -1,6 +1,7 @@
 package com.example.geoplanner;
 
 import android.content.ClipData;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -26,6 +28,7 @@ import com.firebase.ui.database.SnapshotParser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.core.SnapshotHolder;
 
 import java.util.List;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class TasksFragment extends Fragment {
     ImageButton btnAdd;
@@ -119,6 +124,8 @@ public class TasksFragment extends Fragment {
             public void onClick(View view) {
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext(), R.style.BottomSheetDialogTheme);
 
+                //Bottom sheet view for adding tasks
+
                 View bottomSheetView = LayoutInflater.from(getContext())
                         .inflate(R.layout.layout_bottom_sheet, (LinearLayout)view.findViewById(R.id.bottomSheetContainer));
 
@@ -153,62 +160,7 @@ public class TasksFragment extends Fragment {
 //
 //                        taskNo = 0;
 
-                        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                if (snapshot.hasChild("unchecked")) {
-
-                                    Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked").orderByKey().limitToLast(1);
-                                    lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                                String taskID = dataSnapshot.getValue().toString();
-//                                String id = taskID.substring(1,2);
-//                                System.out.println(id);
-//                                newID = Integer.parseInt(id) + 1;
-
-                                            for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                                Log.d("User key", child.getKey());
-                                                Log.d("User val", child.child("tname").getValue().toString());
-
-                                                String id = child.getKey();
-                                                newID = Integer.parseInt(id) + 1;
-
-                                                System.out.println(newID);
-
-                                                FirebaseDatabase.getInstance().getReference("Tasks")
-                                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                        .child("unchecked")
-                                                        .child(String.valueOf(newID))
-                                                        .setValue(taskObj);
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            // Handle possible errors.
-                                        }
-                                    });
-
-                                }
-
-                                else {
-                                    FirebaseDatabase.getInstance().getReference("Tasks")
-                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                            .child("unchecked")
-                                            .child("1")
-                                            .setValue(taskObj);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-
-
+                        addData(taskObj);
 
 
                         bottomSheetDialog.dismiss();
@@ -228,7 +180,9 @@ public class TasksFragment extends Fragment {
         return view;
     }
 
-    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+    //Swipe left or right to delete function
+    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -239,20 +193,106 @@ public class TasksFragment extends Fragment {
             final int position = viewHolder.getAdapterPosition();
 
             if (viewHolder.getBindingAdapter() == adapter1) {
+                adapter1.copyItem(position);
 
                 adapter1.deleteItem(position);
 
+                Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                adapter1.undoItem(position);
+                            }
+                        }).show();
             }
 
             else if(viewHolder.getBindingAdapter() == adapter2) {
+                adapter2.copyItem(position);
 
                 adapter2.deleteItem(position);
 
+                Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                adapter2.undoItem(position);
+                            }
+                        }).show();
             }
+
+
 
 //            System.out.println(viewHolder.getBindingAdapter());
         }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addBackgroundColor(ContextCompat.getColor(getContext(), R.color.red))
+                    .addActionIcon(R.drawable.ic_delete)
+                    .create()
+                    .decorate();
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
     };
+
+
+    public void addData(final model taskObj) {
+        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.hasChild("unchecked")) {
+
+                    Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked").orderByKey().limitToLast(1);
+                    lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                                String taskID = dataSnapshot.getValue().toString();
+//                                String id = taskID.substring(1,2);
+//                                System.out.println(id);
+//                                newID = Integer.parseInt(id) + 1;
+
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                Log.d("User key", child.getKey());
+                                Log.d("User val", child.child("tname").getValue().toString());
+
+                                String id = child.getKey();
+                                newID = Integer.parseInt(id) + 1;
+
+                                System.out.println(newID);
+
+                                FirebaseDatabase.getInstance().getReference("Tasks")
+                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                        .child("unchecked")
+                                        .child(String.valueOf(newID))
+                                        .setValue(taskObj);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            // Handle possible errors.
+                        }
+                    });
+
+                }
+
+                else {
+                    FirebaseDatabase.getInstance().getReference("Tasks")
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .child("unchecked")
+                            .child("1")
+                            .setValue(taskObj);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
     @Override
     public void onStart() {
