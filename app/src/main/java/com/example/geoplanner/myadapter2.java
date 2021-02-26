@@ -1,5 +1,6 @@
 package com.example.geoplanner;
 
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +12,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,19 +24,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewholder> {
+public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myviewholder> {
 
     DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
     int newID;
 
-    public myadapter(@NonNull FirebaseRecyclerOptions<model> options) {
+    public myadapter2(@NonNull FirebaseRecyclerOptions<model> options) {
         super(options);
     }
 
-    @Override
-    protected void onBindViewHolder(@NonNull final myviewholder holder, final int position, @NonNull final model model) {
+    protected void onBindViewHolder(@NonNull final myadapter2.myviewholder holder, final int position, @NonNull final model model) {
         holder.taskName.setText(model.getTName());
-        holder.cb.setChecked(false);
+        holder.taskName.setPaintFlags(holder.taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+        holder.cb.setChecked(true);
 
         holder.taskClick.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +51,7 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                if(compoundButton.isChecked()) {
+                if(!compoundButton.isChecked()) {
 
                     Query query = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -60,9 +60,9 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
-                            if (snapshot.hasChild("checked")) {
+                            if (snapshot.hasChild("unchecked")) {
 
-                                Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked").orderByKey().limitToLast(1);
+                                Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked").orderByKey().limitToLast(1);
                                 lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -76,16 +76,15 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
                                             System.out.println(newID);
 
+                                            Query check = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
 
-                                            Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
-
-                                            uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            check.addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                     int pos = holder.getAdapterPosition();
 
                                                     taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                            .child("checked")
+                                                            .child("unchecked")
                                                             .child(String.valueOf(newID))
                                                             .setValue(getSnapshots().getSnapshot(pos).getValue());
 
@@ -98,6 +97,7 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
                                                 }
                                             });
+
 
                                         }
                                     }
@@ -112,18 +112,19 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
                             else {
 
-                                Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
+                                Query check = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
 
-                                uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+                                check.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                                         int pos = holder.getAdapterPosition();
+
                                         FirebaseDatabase.getInstance().getReference("Tasks")
                                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                .child("checked")
+                                                .child("unchecked")
                                                 .child("1")
                                                 .setValue(getSnapshots().getSnapshot(pos).getValue());
-
+                                        
                                         getSnapshots().getSnapshot(pos).getRef().removeValue();
 
                                     }
@@ -137,7 +138,6 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
                             }
 
-
                         }
 
                         @Override
@@ -145,6 +145,7 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
                         }
                     });
+
                 }
 
             }
@@ -152,13 +153,13 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
     }
 
     public void deleteItem(final int position){
-        Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
-        uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        Query check = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
+
+        check.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 getSnapshots().getSnapshot(position).getRef().removeValue();
-
-
             }
 
             @Override
@@ -166,6 +167,7 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
             }
         });
+
 
     }
 
@@ -192,3 +194,5 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
         }
     }
 }
+
+

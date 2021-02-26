@@ -1,5 +1,6 @@
 package com.example.geoplanner;
 
+import android.content.ClipData;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,10 +16,13 @@ import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ConcatAdapter;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.SnapshotParser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -29,11 +33,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.core.SnapshotHolder;
+
+import java.util.List;
 
 public class TasksFragment extends Fragment {
     ImageButton btnAdd;
-    RecyclerView recyclerView;
-    myadapter adapter;
+    RecyclerView recyclerView1, recyclerView2;
+    static myadapter adapter1;
+    myadapter2 adapter2;
+    ConcatAdapter concatAdapter;
     FirebaseAuth fAuth;
     EditText txtTask;
     DatabaseReference taskReff;
@@ -46,23 +55,49 @@ public class TasksFragment extends Fragment {
         //link with xml file
         View view = inflater.inflate(R.layout.fragment_tasks, container,false);
 
-        recyclerView = view.findViewById(R.id.recTasks);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        recyclerView1 = view.findViewById(R.id.recTasks);
+        recyclerView1.setLayoutManager(new LinearLayoutManager(getContext()));
 
         fAuth = FirebaseAuth.getInstance();
 
-        FirebaseRecyclerOptions<model> options =
+
+        FirebaseRecyclerOptions<model> options1 =
                 new FirebaseRecyclerOptions.Builder<model>()
-                        .setQuery(FirebaseDatabase.getInstance().getReference("Tasks").child(fAuth.getCurrentUser().getUid()), model.class)
+                        .setQuery(FirebaseDatabase.getInstance().getReference("Tasks").child(fAuth.getCurrentUser().getUid()).child("unchecked"), model.class)
                         .build();
 
-        adapter = new myadapter(options);
-        recyclerView.setAdapter(adapter);
+
+        adapter1 = new myadapter(options1);
+
+        FirebaseRecyclerOptions<model> options2 =
+                new FirebaseRecyclerOptions.Builder<model>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference("Tasks").child(fAuth.getCurrentUser().getUid()).child("checked"), model.class)
+                        .build();
+
+        adapter2 = new myadapter2(options2);
+
+        concatAdapter = new ConcatAdapter(adapter1,adapter2);
+
+        recyclerView1.setAdapter(concatAdapter);
+
+
+//        recyclerView2 = view.findViewById(R.id.recTasks);
+//        recyclerView2.setLayoutManager(new LinearLayoutManager(getContext()));
+//
+//
+//        FirebaseRecyclerOptions<model> options2 =
+//                new FirebaseRecyclerOptions.Builder<model>()
+//                        .setQuery(FirebaseDatabase.getInstance().getReference("Tasks").child(fAuth.getCurrentUser().getUid()).child("checked"), model.class)
+//                        .build();
+//
+//        adapter2 = new myadapter2(options2);
+//        recyclerView2.setAdapter(adapter2);
 
 
         taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
 
-        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -118,36 +153,61 @@ public class TasksFragment extends Fragment {
 //
 //                        taskNo = 0;
 
-                        Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByKey().limitToLast(1);
-                        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
+                            public void onDataChange(DataSnapshot snapshot) {
+                                if (snapshot.hasChild("unchecked")) {
+
+                                    Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked").orderByKey().limitToLast(1);
+                                    lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
 //                                String taskID = dataSnapshot.getValue().toString();
 //                                String id = taskID.substring(1,2);
 //                                System.out.println(id);
 //                                newID = Integer.parseInt(id) + 1;
 
-                                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                                    Log.d("User key", child.getKey());
-                                    Log.d("User val", child.child("tname").getValue().toString());
+                                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                                Log.d("User key", child.getKey());
+                                                Log.d("User val", child.child("tname").getValue().toString());
 
-                                    String id = child.getKey();
-                                    newID = Integer.parseInt(id) + 1;
+                                                String id = child.getKey();
+                                                newID = Integer.parseInt(id) + 1;
 
-                                    System.out.println(newID);
+                                                System.out.println(newID);
 
+                                                FirebaseDatabase.getInstance().getReference("Tasks")
+                                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                        .child("unchecked")
+                                                        .child(String.valueOf(newID))
+                                                        .setValue(taskObj);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            // Handle possible errors.
+                                        }
+                                    });
+
+                                }
+
+                                else {
                                     FirebaseDatabase.getInstance().getReference("Tasks")
                                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                            .child(String.valueOf(newID))
+                                            .child("unchecked")
+                                            .child("1")
                                             .setValue(taskObj);
                                 }
                             }
 
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                // Handle possible errors.
+                            public void onCancelled(@NonNull DatabaseError error) {
+
                             }
                         });
+
+
 
 
 
@@ -160,19 +220,52 @@ public class TasksFragment extends Fragment {
             }
         });
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView1);
+
+
+
         return view;
     }
+
+    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            final int position = viewHolder.getAdapterPosition();
+
+            if (viewHolder.getBindingAdapter() == adapter1) {
+
+                adapter1.deleteItem(position);
+
+            }
+
+            else if(viewHolder.getBindingAdapter() == adapter2) {
+
+                adapter2.deleteItem(position);
+
+            }
+
+//            System.out.println(viewHolder.getBindingAdapter());
+        }
+    };
 
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
+        adapter1.startListening();
+        adapter2.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        adapter.stopListening();
+        adapter1.stopListening();
+        adapter2.stopListening();
     }
 
 }
