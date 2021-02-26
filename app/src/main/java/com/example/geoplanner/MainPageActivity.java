@@ -41,26 +41,30 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         View header = nav_view.getHeaderView(0);
         name = header.findViewById(R.id.nav_uName);
         emailID = header.findViewById(R.id.nav_email);
+        FirebaseAuth fAuth = FirebaseAuth.getInstance();
 
-        reff = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        reff.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String uname = snapshot.child("name").getValue().toString();
-                String uemail = snapshot.child("email").getValue().toString();
+        name.setText(fAuth.getCurrentUser().getDisplayName());
+        emailID.setText(fAuth.getCurrentUser().getEmail());
 
-                System.out.println(uname);
-                System.out.println(uemail);
-
-                name.setText(uname);
-                emailID.setText(uemail);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        reff = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//        reff.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                String uname = snapshot.child("name").getValue().toString();
+//                String uemail = snapshot.child("email").getValue().toString();
+//
+//                System.out.println(uname);
+//                System.out.println(uemail);
+//
+//                name.setText(uname);
+//                emailID.setText(uemail);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
