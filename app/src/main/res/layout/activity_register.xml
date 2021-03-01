@@ -7,7 +7,6 @@
     tools:context=".RegisterActivity">
 
     <EditText
-
         android:id="@+id/txtID"
         android:layout_width="310dp"
         android:layout_height="50sp"
@@ -37,6 +36,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtID" />
 
+    <EditText
+        android:id="@+id/txtConfirmPass"
+        android:layout_width="310dp"
+        android:layout_height="50sp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/textbox"
+        android:ems="10"
+        android:hint="Confirm Password"
+        android:inputType="textPassword"
+        android:textColorHint="@color/gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.465"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPass" />
+
     <Button
         android:id="@+id/btnSignup"
         android:layout_width="162dp"
@@ -51,7 +65,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.188"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtPass" />
+        app:layout_constraintTop_toBottomOf="@+id/txtConfirmPass" />
 
     <TextView
         android:id="@+id/textView5"
@@ -93,7 +107,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="168dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:text="Register"
         android:textColor="@color/gray"

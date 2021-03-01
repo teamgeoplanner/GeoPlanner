@@ -29,6 +29,17 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
     DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
     int newID;
 
+    RecyclerView mRecyclerView;
+
+    myadapter getAdapter = TasksFragment.getAdap();
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        mRecyclerView = recyclerView;
+    }
+
     public myadapter2(@NonNull FirebaseRecyclerOptions<model> options) {
         super(options);
     }
@@ -52,6 +63,17 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
                 if(!compoundButton.isChecked()) {
+                    int sum = getAdapter.getItemCount() + myadapter2.this.getItemCount();
+
+                    for (int j = getAdapter.getItemCount(); j < sum; j++) {
+                        myviewholder holder = (myadapter2.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                        holder.taskClick.setEnabled(false);
+
+                        for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                            View view = holder.taskClick.getChildAt(i);
+                            view.setEnabled(false);
+                        }
+                    }
 
                     Query query = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -107,6 +129,17 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                         // Handle possible errors.
                                     }
                                 });
+                                int sum = getAdapter.getItemCount() + myadapter2.this.getItemCount();
+
+                                for (int j = getAdapter.getItemCount(); j < sum; j++) {
+                                    myadapter2.myviewholder holder = (myadapter2.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                                    holder.taskClick.setEnabled(true);
+
+                                    for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                                        View view = holder.taskClick.getChildAt(i);
+                                        view.setEnabled(true);
+                                    }
+                                }
 
                             }
 
@@ -134,6 +167,18 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
                                     }
                                 });
+
+                                int sum = getAdapter.getItemCount() + myadapter2.this.getItemCount();
+
+                                for (int j = getAdapter.getItemCount(); j < sum; j++) {
+                                    myadapter2.myviewholder holder = (myadapter2.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                                    holder.taskClick.setEnabled(true);
+
+                                    for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                                        View view = holder.taskClick.getChildAt(i);
+                                        view.setEnabled(true);
+                                    }
+                                }
 
 
                             }
@@ -213,6 +258,9 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                 .child("checked")
                                 .child(deletedKey)
                                 .setValue(deletedTask);
+
+                        deletedTask = null;
+                        deletedKey = null;
                     }
 
                     @Override
@@ -229,6 +277,11 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
             }
         });
+    }
+
+    public void clearDeleted() {
+        deletedTask = null;
+        deletedKey = null;
     }
 
     public class myviewholder extends RecyclerView.ViewHolder {

@@ -24,7 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    EditText uName, emailID, pass;
+    EditText uName, emailID, pass, confpass;
     Button btnRegister;
     ImageView backButton;
     TextView login;
@@ -40,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
         uName = findViewById(R.id.txtName);
         emailID = findViewById(R.id.txtID);
         pass = findViewById(R.id.txtPass);
+        confpass = findViewById(R.id.txtConfirmPass);
         btnRegister = findViewById(R.id.btnSignup);
 
         // get current instance(state) of Firebase
@@ -53,6 +54,7 @@ public class RegisterActivity extends AppCompatActivity {
                 final String name = uName.getText().toString().trim();
                 final String email = emailID.getText().toString().trim();
                 String password = pass.getText().toString().trim();
+                String confpassword = confpass.getText().toString().trim();
 
                 if(TextUtils.isEmpty(email)){
                     emailID.setError("Email ID Required!");
@@ -70,6 +72,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if(password.length() < 8){
                     pass.setError("Minimum 8 characters required!");
+                    return;
+                }
+
+                if(!password.equals(confpassword)) {
+                    confpass.setError("Password does not match!");
                     return;
                 }
 

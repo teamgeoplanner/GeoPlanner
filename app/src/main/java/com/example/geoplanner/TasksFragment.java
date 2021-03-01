@@ -180,6 +180,10 @@ public class TasksFragment extends Fragment {
         return view;
     }
 
+    public static myadapter getAdap() {
+        return adapter1;
+    }
+
 
     //Swipe left or right to delete function
     final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -197,13 +201,24 @@ public class TasksFragment extends Fragment {
 
                 adapter1.deleteItem(position);
 
-                Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                adapter1.undoItem(position);
-                            }
-                        }).show();
+                Snackbar snackbar = Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG);
+
+                snackbar.setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        adapter1.undoItem(position);
+                    }
+                }).show();
+
+                snackbar.addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar transientBottomBar, int event) {
+                        if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
+                            adapter1.clearDeleted();
+                        }
+
+                    }
+                });
             }
 
             else if(viewHolder.getBindingAdapter() == adapter2) {
@@ -211,13 +226,22 @@ public class TasksFragment extends Fragment {
 
                 adapter2.deleteItem(position);
 
-                Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                adapter2.undoItem(position);
-                            }
-                        }).show();
+                Snackbar snackbar = Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG);
+                snackbar.setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        adapter2.undoItem(position);
+                    }
+                }).show();
+
+                snackbar.addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar transientBottomBar, int event) {
+                        if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
+                            adapter2.clearDeleted();
+                        }
+                    }
+                });
             }
 
 

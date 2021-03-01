@@ -28,12 +28,23 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
     DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
     int newID;
 
+    RecyclerView mRecyclerView;
+
+
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        mRecyclerView = recyclerView;
+    }
+
     public myadapter(@NonNull FirebaseRecyclerOptions<model> options) {
         super(options);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull final myviewholder holder, final int position, @NonNull final model model) {
+    protected void onBindViewHolder(@NonNull final myadapter.myviewholder holder, final int position, @NonNull final model model) {
         holder.taskName.setText(model.getTName());
         holder.cb.setChecked(false);
 
@@ -49,101 +60,145 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
+
+//                for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+//                    View view = holder.taskClick.getChildAt(i);
+//                    view.setEnabled(false);
+////                    view.setVisibility(View.GONE); // Or whatever you want to do with the view.
+//                }
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+
+
                 if(compoundButton.isChecked()) {
+                    for (int j = 0; j < myadapter.this.getItemCount(); j++) {
+                        myadapter.myviewholder holder = (myadapter.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                        holder.taskClick.setEnabled(false);
 
-                    Query query = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                            View view = holder.taskClick.getChildAt(i);
+                            view.setEnabled(false);
+                        }
+                    }
 
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Query query = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-
-                            if (snapshot.hasChild("checked")) {
-
-                                Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked").orderByKey().limitToLast(1);
-                                lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                            Log.d("User key", child.getKey());
-                                            Log.d("User val", child.child("tname").getValue().toString());
-
-                                            String id = child.getKey();
-                                            newID = Integer.parseInt(id) + 1;
-
-                                            System.out.println(newID);
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
-                                            Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
+                                if (snapshot.hasChild("checked")) {
 
-                                            uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                    int pos = holder.getAdapterPosition();
+                                    Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked").orderByKey().limitToLast(1);
+                                    lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                                    taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                            .child("checked")
-                                                            .child(String.valueOf(newID))
-                                                            .setValue(getSnapshots().getSnapshot(pos).getValue());
+                                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                                Log.d("User key", child.getKey());
+                                                Log.d("User val", child.child("tname").getValue().toString());
 
-                                                    getSnapshots().getSnapshot(pos).getRef().removeValue();
+                                                String id = child.getKey();
+                                                newID = Integer.parseInt(id) + 1;
 
-                                                }
+                                                System.out.println(newID);
 
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError error) {
 
-                                                }
-                                            });
+                                                Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
 
+                                                uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        int pos = holder.getAdapterPosition();
+
+                                                        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                                .child("checked")
+                                                                .child(String.valueOf(newID))
+                                                                .setValue(getSnapshots().getSnapshot(pos).getValue());
+
+                                                        getSnapshots().getSnapshot(pos).getRef().removeValue();
+
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            // Handle possible errors.
+                                        }
+                                    });
+
+                                    for (int j = 0; j < myadapter.this.getItemCount(); j++) {
+                                        myadapter.myviewholder holder = (myadapter.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                                        holder.taskClick.setEnabled(true);
+                                        System.out.println(holder.taskClick);
+
+                                        for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                                            View view = holder.taskClick.getChildAt(i);
+                                            view.setEnabled(true);
                                         }
                                     }
 
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                        // Handle possible errors.
+                                }
+
+                                else {
+
+                                    Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
+
+                                    uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            int pos = holder.getAdapterPosition();
+                                            FirebaseDatabase.getInstance().getReference("Tasks")
+                                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .child("checked")
+                                                    .child("1")
+                                                    .setValue(getSnapshots().getSnapshot(pos).getValue());
+
+                                            getSnapshots().getSnapshot(pos).getRef().removeValue();
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
+                                    for (int j = 0; j < myadapter.this.getItemCount(); j++) {
+                                        myadapter.myviewholder holder = (myadapter.myviewholder) mRecyclerView.findViewHolderForAdapterPosition(j);
+                                        holder.taskClick.setEnabled(true);
+
+                                        for ( int i = 0; i < holder.taskClick.getChildCount();  i++ ){
+                                            View view = holder.taskClick.getChildAt(i);
+                                            view.setEnabled(true);
+                                        }
                                     }
-                                });
+
+
+                                }
+
 
                             }
 
-                            else {
-
-                                Query uncheck = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
-
-                                uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        int pos = holder.getAdapterPosition();
-                                        FirebaseDatabase.getInstance().getReference("Tasks")
-                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                .child("checked")
-                                                .child("1")
-                                                .setValue(getSnapshots().getSnapshot(pos).getValue());
-
-                                        getSnapshots().getSnapshot(pos).getRef().removeValue();
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
-
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
                             }
+                        });
+                    }
 
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
 
             }
         });
@@ -210,6 +265,9 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
                                 .child("unchecked")
                                 .child(deletedKey)
                                 .setValue(deletedTask);
+
+                        deletedTask = null;
+                        deletedKey = null;
                     }
 
                     @Override
@@ -226,6 +284,11 @@ public class myadapter extends FirebaseRecyclerAdapter<model, myadapter.myviewho
 
             }
         });
+    }
+
+    public void clearDeleted() {
+        deletedTask = null;
+        deletedKey = null;
     }
 
     public class myviewholder extends RecyclerView.ViewHolder {

@@ -8,6 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,6 +17,8 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,14 +26,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.zip.Inflater;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainPageActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
 
     TextView name, emailID;
     DatabaseReference reff;     //Create reference variable for database
+    CircleImageView profileImg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +50,27 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         View header = nav_view.getHeaderView(0);
         name = header.findViewById(R.id.nav_uName);
         emailID = header.findViewById(R.id.nav_email);
+        profileImg = header.findViewById(R.id.profileImage);
         FirebaseAuth fAuth = FirebaseAuth.getInstance();
 
         name.setText(fAuth.getCurrentUser().getDisplayName());
         emailID.setText(fAuth.getCurrentUser().getEmail());
+
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+        StorageReference profileRef = storageReference.child("profile_images").child(FirebaseAuth.getInstance().getCurrentUser().getUid() + ".jpg");
+
+        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(profileImg);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                System.out.println("no profile image");
+            }
+        });
 
 //        reff = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 //        reff.addValueEventListener(new ValueEventListener() {
@@ -101,6 +127,9 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
                 break;
             case R.id.nav_autosilent:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).commit();
+                break;
+            case R.id.nav_profile:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new UserProfileFragment()).commit();
                 break;
             case R.id.nav_logout:
                 FirebaseAuth.getInstance().signOut();
