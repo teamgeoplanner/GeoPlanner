@@ -3,6 +3,7 @@ package com.example.geoplanner;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +31,7 @@ import java.util.List;
 
 public class MainActivity2 extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    Button button;
+    Button button, button2;
     MyBackgroundService mService;
     Boolean mBound = false;
 
@@ -64,12 +65,21 @@ public class MainActivity2 extends AppCompatActivity implements SharedPreference
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
+
                         button = findViewById(R.id.button2);
+                        button2 = findViewById(R.id.button3);
 
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 mService.requestLocationUpdates();
+                            }
+                        });
+
+                        button2.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                mService.removeLocationUpdates();
                             }
                         });
 
@@ -81,9 +91,18 @@ public class MainActivity2 extends AppCompatActivity implements SharedPreference
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+//                        for(int i=0 ; i<permissions.size() ; i++) {
+                            if(permissions.toString().equals("[Permission name: android.permission.ACCESS_BACKGROUND_LOCATION]")) {
+                                System.out.println("permission:"+permissions);
+//                                Toast.makeText(mService, "background permission denied", Toast.LENGTH_SHORT).show();
+                            }
+//                        finish();
 
+//                        }
                     }
                 }).check();
+
+
     }
 
 

@@ -45,6 +45,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -80,6 +81,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     private DatabaseReference getLocation;
     private GeoQuery geoQuery;
     private List<LatLng> markedArea;
+    private DatabaseReference locationReff;
+    private DatabaseReference taskReff;
 
 
     public MyBackgroundService() {
@@ -89,6 +92,15 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     @Override
     public void onCreate() {
+
+        locationReff = FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        taskReff = FirebaseDatabase.getInstance().getReference("Tasks").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        myLocationRef = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        geoFire = new GeoFire(myLocationRef);
+
+
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -104,9 +116,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
         createLocationRequest();
         getLastLocation();
 
-        myLocationRef = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-        geoFire = new GeoFire(myLocationRef);
 
         getLocation = FirebaseDatabase.getInstance()
                 .getReference("Location")
@@ -154,16 +164,16 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent intent1 = new Intent(this, MainPageActivity.class);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0);
-
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("GeoPlanner")
-                .setContentText("GeoPlanner is running in background")
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .build();
+//        Intent intent1 = new Intent(this, MainPageActivity.class);
+//
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0);
+//
+//        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+//                .setContentTitle("GeoPlanner")
+//                .setContentText("GeoPlanner is running in background")
+//                .setContentIntent(pendingIntent)
+//                .setSmallIcon(R.mipmap.ic_launcher)
+//                .build();
 
         startForeground(NOTI_ID, getNotification());
 
@@ -175,7 +185,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
             stopSelf();
         }
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -186,7 +196,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
         super.onConfigurationChanged(newConfig);
     }
 
-    private void removeLocationUpdates() {
+    public void removeLocationUpdates() {
 
         try {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
@@ -243,18 +253,20 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     private Notification getNotification() {
 
         Intent intent = new Intent(this, MyBackgroundService.class);
-        String text = Common.getLocationText(mLocation);
+        String text = "GeoPlanner is running in background";
 
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
-        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainPageActivity.class), 0);
+//        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainPageActivity.class), 0);
+
+        Intent intent1 = new Intent(this, MainPageActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent1, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .addAction(R.drawable.ic_launcher_foreground, "Launch", activityPendingIntent)
-                .addAction(R.drawable.ic_launcher_foreground, "Remove", servicePendingIntent)
-                .setContentTitle(Common.getLocationTitle(this))
+//                .setContentTitle(Common.getLocationTitle(this))
                 .setContentText(text)
+                .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -320,7 +332,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
 
 
-        addCircleArea();
+        if (mLocation != null)
+            addCircleArea();
 //        }
 
         System.out.println("on load location success running");
@@ -334,7 +347,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
             geoFire.setLocation("You", new GeoLocation(mLocation.getLatitude(), mLocation.getLongitude()));
 
             // create GeoQuery when user in marked location
-            geoQuery = geoFire.queryAtLocation(new GeoLocation(latLng.latitude, latLng.longitude), 0.5f);
+            geoQuery = geoFire.queryAtLocation(new GeoLocation(latLng.latitude, latLng.longitude), 0.1f);
 
             geoQuery.addGeoQueryEventListener(this);
         }
@@ -345,9 +358,52 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     }
 
+
     @Override
     public void onKeyEntered(String key, GeoLocation location) {
-        sendNotification("GeoPlanner", String.format("%s entered marked area", key));
+        System.out.println("location entered: " + geoQuery.getCenter());
+
+        locationReff.orderByChild("latitude").equalTo(geoQuery.getCenter().latitude).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if(snapshot.child("longitude").getValue().equals(geoQuery.getCenter().longitude)) {
+                    System.out.println("key entered: " + snapshot.getKey());
+
+                    taskReff.child("unchecked").orderByChild("location").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+                        }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
     }
 
     @Override
@@ -405,7 +461,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
             return MyBackgroundService.this;
         }
     }
-    
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

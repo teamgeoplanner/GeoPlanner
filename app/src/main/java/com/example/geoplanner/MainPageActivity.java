@@ -126,7 +126,9 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoMsgFragment()).commit();
                 break;
             case R.id.nav_autosilent:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).commit();
+//                getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).commit();
+                Intent intent = new Intent(this, MainActivity2.class);
+                startActivity(intent);
                 break;
             case R.id.nav_profile:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new UserProfileFragment()).commit();

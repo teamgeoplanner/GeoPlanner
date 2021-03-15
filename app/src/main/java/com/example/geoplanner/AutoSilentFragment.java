@@ -35,24 +35,24 @@ import java.util.List;
 
 public class AutoSilentFragment extends Fragment {
     Button button;
-    MyBackgroundService mService;
-    Boolean mBound = false;
+//    MyBackgroundService mService;
+//    Boolean mBound = false;
 
 
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            MyBackgroundService.LocalBinder binder = (MyBackgroundService.LocalBinder) iBinder;
-            mService = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mService = null;
-            mBound = false;
-        }
-    };
+//    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+//            MyBackgroundService.LocalBinder binder = (MyBackgroundService.LocalBinder) iBinder;
+//            mService = binder.getService();
+//            mBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName componentName) {
+//            mService = null;
+//            mBound = false;
+//        }
+//    };
 
     @Nullable
     @Override

@@ -1,18 +1,19 @@
 package com.example.geoplanner;
 
-import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.Canvas;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +25,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
+
+
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,11 +40,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.core.SnapshotHolder;
 
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+import okhttp3.internal.cache.DiskLruCache;
+
+import static android.app.Activity.RESULT_OK;
 
 public class TasksFragment extends Fragment {
     ImageButton btnAdd;
@@ -53,6 +62,14 @@ public class TasksFragment extends Fragment {
     DatabaseReference taskReff;
     int countTasks = 0;
     int newID;
+    String newLocID;
+
+    int PLACE_PICKER_REQUEST = 1;
+
+    TextView locationName;
+
+    LatLng location;
+
 
     @Nullable
     @Override
@@ -140,32 +157,58 @@ public class TasksFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Toast.makeText(getContext(), "Add Location", Toast.LENGTH_SHORT).show();
+
+                        Intent intent = new Intent(getContext(), MapsActivity.class);
+                        startActivityForResult(intent, 2);
+
+                        //get location using place picker
+
+//                        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+//                        Intent intent;
+//                        try {
+//                            intent = builder.build(getActivity());
+//                            startActivityForResult(intent, PLACE_PICKER_REQUEST);
+//                        } catch (GooglePlayServicesRepairableException e) {
+//                            e.printStackTrace();
+//                        } catch (GooglePlayServicesNotAvailableException e) {
+//                            e.printStackTrace();
+//                        }
+
+//
+
+                        
+
+//                        Places.initialize(getActivity().getApplicationContext(), "AIzaSyC8v68rqXR6vGID8EdlSeQjmphYbrNe4hQ");
+//
+//                        // Set the fields to specify which types of place data to return.
+//                        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG, Place.Field.NAME );
+//
+//                        // Start the autocomplete intent.
+//                        Intent intent = new Autocomplete.IntentBuilder(
+//                                AutocompleteActivityMode.FULLSCREEN, fields)
+//                                .build(getContext());
+//                        startActivityForResult(intent, 100);
                     }
                 });
+
+
+                locationName = bottomSheetView.findViewById(R.id.textLocation);
 
                 txtTask = bottomSheetView.findViewById(R.id.txtTask);
 
                 bottomSheetView.findViewById(R.id.btnSaveTask).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        final model taskObj = new model(txtTask.getText().toString());
 
+                        addLocation();
 
-//                        int taskNo = countTasks + 1;
-//
-//                        FirebaseDatabase.getInstance().getReference("Tasks")
-//                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                                .child(String.valueOf(taskNo))
-//                                .setValue(taskObj);
-//
-//                        taskNo = 0;
-
-                        addData(taskObj);
 
 
                         bottomSheetDialog.dismiss();
                     }
                 });
+
+
 
                 bottomSheetDialog.setContentView(bottomSheetView);
                 bottomSheetDialog.show();
@@ -178,6 +221,70 @@ public class TasksFragment extends Fragment {
 
 
         return view;
+    }
+
+    private void addLocation() {
+        if(location!=null) {
+            final DatabaseReference locationReff = FirebaseDatabase.getInstance()
+                    .getReference("Location")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+            FirebaseDatabase.getInstance().getReference("Location").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.hasChild(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+
+                        locationReff.orderByKey().limitToLast(1)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for (DataSnapshot child : snapshot.getChildren()) {
+                                            String id = child.getKey();
+                                            newLocID = String.valueOf(Integer.parseInt(id) + 1);
+
+                                            locationReff.child(newLocID).setValue(location);
+
+                                            final model taskObj = new model(txtTask.getText().toString(), String.valueOf(newLocID));
+
+                                            addData(taskObj);
+
+                                            location = null;
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                    }
+                    else {
+                        newLocID = "0";
+                        locationReff.child(newLocID).setValue(location);
+
+                        final model taskObj = new model(txtTask.getText().toString(), String.valueOf(newLocID));
+
+                        addData(taskObj);
+
+                        location = null;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        } else {
+            newLocID = null;
+
+            final model taskObj = new model(txtTask.getText().toString(), String.valueOf(newLocID));
+
+            addData(taskObj);
+        }
+
+
+
     }
 
     public static myadapter getAdap() {
@@ -199,7 +306,7 @@ public class TasksFragment extends Fragment {
             if (viewHolder.getBindingAdapter() == adapter1) {
                 adapter1.copyItem(position);
 
-                adapter1.deleteItem(position);
+//                adapter1.deleteItem(position);
 
                 Snackbar snackbar = Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG);
 
@@ -224,7 +331,7 @@ public class TasksFragment extends Fragment {
             else if(viewHolder.getBindingAdapter() == adapter2) {
                 adapter2.copyItem(position);
 
-                adapter2.deleteItem(position);
+//                adapter2.deleteItem(position);
 
                 Snackbar snackbar = Snackbar.make(recyclerView1,"Task Deleted", Snackbar.LENGTH_LONG);
                 snackbar.setAction("Undo", new View.OnClickListener() {
@@ -317,6 +424,85 @@ public class TasksFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 2) {
+            if(resultCode == 2) {
+                Double latitude = data.getDoubleExtra("latitude", 0);
+                Double longitude = data.getDoubleExtra("longitude", 0);
+
+                location = new LatLng(latitude, longitude);
+
+    //            locationName.setText((int) (location.latitude + location.longitude));
+                System.out.println("location" + location);
+
+
+                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+                List<Address> addresses  = null;
+                try {
+                    addresses = geocoder.getFromLocation(location.latitude ,location.longitude, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String address = addresses.get(0).getAddressLine(0);
+                System.out.println("address" + addresses.get(0).getSubLocality());
+
+                String displayAddress = addresses.get(0).getSubLocality() + ", " + addresses.get(0).getLocality() + ", " + addresses.get(0).getAdminArea() + " " + addresses.get(0).getPostalCode();
+                locationName.setText(displayAddress.substring(0, 20) + "...");
+                locationName.setVisibility(View.VISIBLE);
+            }
+
+            else if(resultCode == 3) {
+                location = null;
+            }
+        }
+
+    }
+
+    //    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//
+//        if(requestCode == PLACE_PICKER_REQUEST) {
+//            if(resultCode == RESULT_OK) {
+//
+//                Place place = PlacePicker.getPlace(data, getContext());
+////                String address = String.valueOf(place.getLatLng().latitude + ", " + place.getLatLng().longitude);
+////                locationName.setText(address);
+////                locationName.setVisibility(View.VISIBLE);
+////                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+//                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+//
+//                List<Address> addresses  = null;
+//                try {
+//                    addresses = geocoder.getFromLocation(place.getLatLng().latitude ,place.getLatLng().longitude, 1);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                String address = addresses.get(0).getAddressLine(0);
+//                locationName.setText(address);
+//            }
+//        }
+//    }
+
+
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == 100) {
+//            if (resultCode == RESULT_OK) {
+//                Place place = Autocomplete.getPlaceFromIntent(data);
+////                Log.i("TAG", "Place: " + place.getName() + ", " + place.getId());
+//                System.out.println("address:"+place.getAddress());
+//            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+//                // TODO: Handle the error.
+//                Status status = Autocomplete.getStatusFromIntent(data);
+//                Log.i("TAG", status.getStatusMessage());
+//            } else if (resultCode == RESULT_CANCELED) {
+//                // The user canceled the operation.
+//            }
+//        }
+//    }
 
     @Override
     public void onStart() {

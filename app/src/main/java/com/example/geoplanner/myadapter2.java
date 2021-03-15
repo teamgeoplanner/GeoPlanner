@@ -28,6 +28,7 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
     DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
     int newID;
+    String locID;
 
     RecyclerView mRecyclerView;
 
@@ -205,6 +206,21 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 getSnapshots().getSnapshot(position).getRef().removeValue();
+
+                locID = (String) getSnapshots().getSnapshot(position).child("locationID").getValue();
+
+                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(locID)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                snapshot.getRef().removeValue();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
             }
 
             @Override
@@ -218,6 +234,9 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
     Object deletedTask = null;
     String deletedKey = null;
+
+    Object deletedLocation = null;
+    String deletedLocKey = null;
 
     @NonNull
     @Override
@@ -234,6 +253,24 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                 deletedTask = getSnapshots().getSnapshot(position).getValue();
                 deletedKey = getSnapshots().getSnapshot(position).getKey();
 
+                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.hasChild(locID)) {
+                                    deletedLocation = snapshot.getValue();
+                                    deletedLocKey = locID;
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+                deleteItem(position);
+
             }
 
             @Override
@@ -244,44 +281,32 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
     }
 
     public void undoItem(final int position) {
-        taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
 
-                Query lastQuery = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
-                lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+        FirebaseDatabase.getInstance().getReference("Tasks")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("checked")
+                .child(deletedKey)
+                .setValue(deletedTask);
 
-                        FirebaseDatabase.getInstance().getReference("Tasks")
-                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .child("checked")
-                                .child(deletedKey)
-                                .setValue(deletedTask);
+        deletedTask = null;
+        deletedKey = null;
 
-                        deletedTask = null;
-                        deletedKey = null;
-                    }
+        if(deletedLocation!=null && deletedLocKey!=null) {
+            FirebaseDatabase.getInstance().getReference("Location")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .setValue(deletedLocation);
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        // Handle possible errors.
-                    }
-                });
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+            deletedLocation = null;
+            deletedLocKey = null;
+        }
     }
 
     public void clearDeleted() {
         deletedTask = null;
         deletedKey = null;
+
+        deletedLocation = null;
+        deletedLocKey = null;
     }
 
     public class myviewholder extends RecyclerView.ViewHolder {
