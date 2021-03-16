@@ -142,6 +142,7 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
     }
 
     //Event when user clicks Back button
+    @Override
     public void onBackPressed() {
         if(drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);

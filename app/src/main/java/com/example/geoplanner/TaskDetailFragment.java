@@ -1,8 +1,11 @@
 package com.example.geoplanner;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,18 +22,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import static com.example.geoplanner.TasksFragment.adapter1;
 
 ///**
 // * A simple {@link Fragment} subclass.
@@ -40,8 +51,12 @@ public class TaskDetailFragment extends Fragment {
 
     EditText taskName;
     Button btnLocation;
+    Button btnSave;
     TextView displayLocation;
     ImageView btnBack;
+    ImageButton btnDelete;
+
+    Dialog dialog;
 
     String newLocID;
 
@@ -50,6 +65,8 @@ public class TaskDetailFragment extends Fragment {
     LatLng location;
 
     Double latitude, longitude;
+
+    DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -111,6 +128,8 @@ public class TaskDetailFragment extends Fragment {
         btnLocation = view.findViewById(R.id.btnAddLocation);
         displayLocation = view.findViewById(R.id.textDispLoc);
         btnBack = view.findViewById(R.id.btnBack);
+        btnSave = view.findViewById(R.id.btnSave);
+        btnDelete = view.findViewById(R.id.btnDeleted);
 
         taskName.setText(TName);
 
@@ -159,14 +178,97 @@ public class TaskDetailFragment extends Fragment {
             }
         });
 
-        btnBack.setOnClickListener(new View.OnClickListener() {
+        btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 updateTaskInfo();
             }
         });
 
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                dialog = new Dialog(getContext());
+                dialog.setContentView(R.layout.delete_task_dialog);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    dialog.getWindow().setBackgroundDrawable(getContext().getDrawable(R.drawable.dialog_background));
+                }
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.setCancelable(false);    //Don't close dialog box on clicking background
+
+                Button btnDel, btnCancel;
+                final EditText txtEmail;
+
+                btnDel = dialog.findViewById(R.id.deleteBtn);
+                btnCancel = dialog.findViewById(R.id.cancelBtn);
+                txtEmail = dialog.findViewById(R.id.txtID);
+
+
+                //Click event of Reset Password Bitton
+                btnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        deleteTask();
+
+                        dialog.dismiss();
+                    }
+                });
+
+                //Click event of Cancel Button
+                btnCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
+            }
+        });
+
         return  view;
+    }
+
+    private void deleteTask() {
+
+        Query uncheck = taskReff.child(checked);
+        uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                snapshot.child(taskID).getRef().removeValue();
+
+                String locID = (String) snapshot.child(taskID).child("locationID").getValue();
+
+                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(locID)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                snapshot.getRef().removeValue();
+
+                                AppCompatActivity activity = (AppCompatActivity) getContext();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void updateTaskInfo() {
@@ -202,8 +304,6 @@ public class TaskDetailFragment extends Fragment {
 
                         }
                     });
-        } else {
-
         }
     }
 
@@ -274,10 +374,12 @@ public class TaskDetailFragment extends Fragment {
         }
     }
 
-    public void onBackPressed() {
-        AppCompatActivity activity = (AppCompatActivity) getContext();
-        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).commit();
-    }
+
+
+//    public void onBackPressed() {
+//        AppCompatActivity activity = (AppCompatActivity) getContext();
+//        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).commit();
+//    }
 
 
     @Override
@@ -316,4 +418,6 @@ public class TaskDetailFragment extends Fragment {
         }
 
     }
+
+
 }
