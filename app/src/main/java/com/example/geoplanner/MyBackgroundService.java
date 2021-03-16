@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -373,6 +375,19 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                             sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+
+                            NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if(n.isNotificationPolicyAccessGranted()) {
+                                    AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                                    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                                }else{
+                                    // Ask the user to grant access
+                                    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                            }
                         }
 
                         @Override
