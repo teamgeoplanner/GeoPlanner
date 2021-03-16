@@ -161,33 +161,6 @@ public class TasksFragment extends Fragment {
                         Intent intent = new Intent(getContext(), MapsActivity.class);
                         startActivityForResult(intent, 2);
 
-                        //get location using place picker
-
-//                        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-//                        Intent intent;
-//                        try {
-//                            intent = builder.build(getActivity());
-//                            startActivityForResult(intent, PLACE_PICKER_REQUEST);
-//                        } catch (GooglePlayServicesRepairableException e) {
-//                            e.printStackTrace();
-//                        } catch (GooglePlayServicesNotAvailableException e) {
-//                            e.printStackTrace();
-//                        }
-
-//
-
-                        
-
-//                        Places.initialize(getActivity().getApplicationContext(), "AIzaSyC8v68rqXR6vGID8EdlSeQjmphYbrNe4hQ");
-//
-//                        // Set the fields to specify which types of place data to return.
-//                        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG, Place.Field.NAME );
-//
-//                        // Start the autocomplete intent.
-//                        Intent intent = new Autocomplete.IntentBuilder(
-//                                AutocompleteActivityMode.FULLSCREEN, fields)
-//                                .build(getContext());
-//                        startActivityForResult(intent, 100);
                     }
                 });
 

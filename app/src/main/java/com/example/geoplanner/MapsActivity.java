@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                        button.setOnClickListener(new View.OnClickListener() {
 //                            @Override
 //                            public void onClick(View view) {
-                                mService.requestLocationUpdates();
+//                                mService.requestLocationUpdates();
 //                            }
 //                        });
 
@@ -129,6 +129,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mService.requestLocationUpdates();
+
                 Intent intent=new Intent();
                 intent.putExtra("latitude",loc.latitude);
                 intent.putExtra("longitude",loc.longitude);
@@ -197,8 +199,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onBackPressed() {
         super.onBackPressed();
 
-        Intent intent=new Intent();
-        setResult(3,intent);
+        mService.requestLocationUpdates();
+
+        Intent intent1=new Intent();
+        setResult(3,intent1);
         finish();
     }
 

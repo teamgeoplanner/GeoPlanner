@@ -369,7 +369,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                 if(snapshot.child("longitude").getValue().equals(geoQuery.getCenter().longitude)) {
                     System.out.println("key entered: " + snapshot.getKey());
 
-                    taskReff.child("unchecked").orderByChild("location").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
+                    taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                             sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));

@@ -53,9 +53,24 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
         holder.taskClick.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TaskDetailFragment(model.getTName())).addToBackStack(null).commit();
+            public void onClick(final View view) {
+                Query check = taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checked");
+                check.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        int pos = holder.getAdapterPosition();
+                        System.out.println("pos" + pos);
+                        String id = getSnapshots().getSnapshot(pos).getKey();
+
+                        AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TaskDetailFragment(model.getTName(), id, "checked")).addToBackStack(null).commit();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
         });
 
@@ -252,6 +267,8 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 deletedTask = getSnapshots().getSnapshot(position).getValue();
                 deletedKey = getSnapshots().getSnapshot(position).getKey();
+
+                locID = (String) getSnapshots().getSnapshot(position).child("locationID").getValue();
 
                 FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
