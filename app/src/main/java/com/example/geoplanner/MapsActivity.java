@@ -131,6 +131,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 mService.requestLocationUpdates();
 
+                System.out.println("maps activity lat"+ loc.latitude);
+                System.out.println("maps activity lng"+ loc.longitude);
+
                 Intent intent=new Intent();
                 intent.putExtra("latitude",loc.latitude);
                 intent.putExtra("longitude",loc.longitude);
