@@ -91,6 +91,10 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     List<GeoQuery> gqlist;
 
+    List<String> locEntered = new ArrayList<>();
+
+    Boolean bool = false;
+
 
     public MyBackgroundService() {
 
@@ -358,7 +362,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
         }
 
         gqlist = new ArrayList<>();
-
+        Boolean b = true;
 
         for (LatLng latLng : markedArea) {
 
@@ -369,7 +373,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
             gqlist.add(geoQuery);
 
-            geoQuery.addGeoQueryEventListener(this);
+            geoQuery.addGeoQueryEventListener(MyBackgroundService.this);
         }
     }
 
@@ -380,86 +384,186 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
 
     @Override
-    public void onKeyEntered(String key, GeoLocation location) {
-        System.out.println("location entered: " + key);
+    public void onKeyEntered(String key, final GeoLocation location) {
+
+        System.out.println("location entered: " + geoQuery.getCenter());
 //        sendNotification("Reminder", String.format("%s entered marked area", key));
-        System.out.println("gqlist"+gqlist);
-
-        for (final GeoQuery gq : gqlist) {
-
-//            final GeoQuery gq = gqlist.get(i);
-            System.out.println("gq" + gq.getCenter().latitude);
-
-            locationReff.orderByChild("latitude").equalTo(gq.getCenter().latitude).addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    latVal = (Double) snapshot.child("latitude").getValue();
-                    longVal = (Double) snapshot.child("longitude").getValue();
-
-                    if(snapshot.child("longitude").getValue().equals(gq.getCenter().longitude)) {
-                        System.out.println("key entered: " + snapshot.getKey());
-
-
-                        taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
-                            @Override
-                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                                if(latVal == gq.getCenter().latitude && longVal == gq.getCenter().longitude) {
-                                    System.out.println("latVal" + latVal);
-                                    System.out.println("longVal" + longVal);
-                                    sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
-                                    System.out.println(snapshot.getKey());
-                                    addToChecked(snapshot.getKey());
-                                    latVal = Double.valueOf(0);
-                                    longVal = Double.valueOf(0);
-
-//                                NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                                    if(n.isNotificationPolicyAccessGranted()) {
-//                                        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-//                                        audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-//                                    }else{
-//                                        // Ask the user to grant access
-//                                        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-//                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                                        startActivity(intent);
-//                                    }
+//        System.out.println("gqlist"+gqlist);
+//
+////        for (final GeoQuery gq : gqlist) {
+//
+////            final GeoQuery gq = gqlist.get(i);
+//            System.out.println("gq" + geoQuery.getCenter().latitude);
+//
+//            locationReff.orderByChild("latitude").equalTo(geoQuery.getCenter().latitude).addChildEventListener(new ChildEventListener() {
+//                @Override
+//                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+//                    latVal = (Double) snapshot.child("latitude").getValue();
+//                    longVal = (Double) snapshot.child("longitude").getValue();
+//
+//                    if(snapshot.child("longitude").getValue().equals(geoQuery.getCenter().longitude)) {
+//                        System.out.println("key entered: " + snapshot.getKey());
+//
+//
+//                        taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
+//                            @Override
+//                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+//                                if(latVal == geoQuery.getCenter().latitude && longVal == geoQuery.getCenter().longitude) {
+//                                    System.out.println("latVal" + latVal);
+//                                    System.out.println("longVal" + longVal);
+//                                    sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+//                                    System.out.println(snapshot.getKey());
+////                                    addToChecked(snapshot.getKey());
+//                                    latVal = Double.valueOf(0);
+//                                    longVal = Double.valueOf(0);
+//
+////                                NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+////                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+////                                    if(n.isNotificationPolicyAccessGranted()) {
+////                                        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+////                                        audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+////                                    }else{
+////                                        // Ask the user to grant access
+////                                        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+////                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////                                        startActivity(intent);
+////                                    }
+////                                }
 //                                }
-                                }
+//
+//                            }
+//
+//                            @Override
+//                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                            @Override
+//                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+//
+//                            @Override
+//                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError error) {}
+//                        });
+//                    }
+//
+//                }
+//
+//                @Override
+//                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                @Override
+//                public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+//
+//                @Override
+//                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {}
+//            });
 
+
+
+//            locationReff.addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    for(DataSnapshot snap : snapshot.getChildren()) {
+//                        float[] dist = new float[1];
+//                        Location.distanceBetween(location.latitude,location.longitude, (Double) snap.child("latitude").getValue(), (Double) snap.child("longitude").getValue(), dist);
+//
+//                        if(dist[0] <= 100) {
+//                            taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
+//                                @Override
+//                                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+//                                    if(latVal == geoQuery.getCenter().latitude && longVal == geoQuery.getCenter().longitude) {
+//                                        System.out.println("latVal" + latVal);
+//                                        System.out.println("longVal" + longVal);
+//                                        sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+//                                        System.out.println(snapshot.getKey());
+////                                    addToChecked(snapshot.getKey());
+//                                        latVal = Double.valueOf(0);
+//                                        longVal = Double.valueOf(0);
+//                                    }
+//
+//                                }
+//
+//                                @Override
+//                                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                                @Override
+//                                public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+//
+//                                @Override
+//                                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+//
+//                                @Override
+//                                public void onCancelled(@NonNull DatabaseError error) {}
+//                            });
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                }
+//            });
+
+//        }
+
+        locationReff.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Location startPoint=new Location("locationA");
+                startPoint.setLatitude(location.latitude);
+                startPoint.setLongitude(location.longitude);
+
+                Location endPoint=new Location("locationA");
+                endPoint.setLatitude((Double) snapshot.child("latitude").getValue());
+                endPoint.setLongitude((Double) snapshot.child("longitude").getValue());
+
+                double distance=startPoint.distanceTo(endPoint);
+
+                if(distance <= 100) {
+                    taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            if(!locEntered.contains(snapshot.getKey())) {
+                                sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+//                                addToChecked(snapshot.getKey());
+                                locEntered.add(snapshot.getKey());
+                                System.out.println("locEntered" + locEntered);
                             }
+                        }
 
-                            @Override
-                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
-                            @Override
-                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
 
-                            @Override
-                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {}
-                        });
-                    }
-
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
                 }
+            }
 
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
-            });
-
-        }
-
-
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            }
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
 
     }
 
