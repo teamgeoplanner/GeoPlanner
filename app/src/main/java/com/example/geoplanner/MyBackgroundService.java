@@ -529,14 +529,14 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                 endPoint.setLatitude((Double) snapshot.child("latitude").getValue());
                 endPoint.setLongitude((Double) snapshot.child("longitude").getValue());
 
-                final double distance=startPoint.distanceTo(endPoint);
+                double distance=startPoint.distanceTo(endPoint);
                 bool = true;
 
                 if(distance <= 100) {
                     taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                            if(distance <= 100) {
+                            if(bool) {
                                 if(!locEntered.contains(snapshot.getKey())) {
                                     sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
                                     addToChecked(snapshot.getKey());
