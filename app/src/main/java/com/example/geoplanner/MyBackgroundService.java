@@ -91,13 +91,20 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     List<GeoQuery> gqlist;
 
-    List<String> locEntered = new ArrayList<>();
+    static List<String> locEntered = new ArrayList<>();
 
     Boolean bool = false;
 
 
     public MyBackgroundService() {
 
+    }
+
+    public static void removeUncheckedId(String id) {
+        if(locEntered.contains(id)) {
+            locEntered.remove(id);
+            System.out.println(locEntered);
+        }
     }
 
 
@@ -523,17 +530,22 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                 endPoint.setLongitude((Double) snapshot.child("longitude").getValue());
 
                 double distance=startPoint.distanceTo(endPoint);
+                bool = true;
 
                 if(distance <= 100) {
                     taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                            if(!locEntered.contains(snapshot.getKey())) {
-                                sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
-//                                addToChecked(snapshot.getKey());
-                                locEntered.add(snapshot.getKey());
-                                System.out.println("locEntered" + locEntered);
+                            if(bool) {
+                                if(!locEntered.contains(snapshot.getKey())) {
+                                    sendNotification("Reminder", String.format((String) snapshot.child("tname").getValue()));
+                                    addToChecked(snapshot.getKey());
+                                    locEntered.add(snapshot.getKey());
+                                    System.out.println("locEntered" + locEntered);
+                                }
+                                bool = false;
                             }
+
                         }
 
                         @Override

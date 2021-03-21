@@ -128,6 +128,7 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
 
                                                     getSnapshots().getSnapshot(pos).getRef().removeValue();
 
+                                                    MyBackgroundService.removeUncheckedId(String.valueOf(newID));
                                                 }
 
                                                 @Override
@@ -176,6 +177,7 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                         
                                         getSnapshots().getSnapshot(pos).getRef().removeValue();
 
+                                        MyBackgroundService.removeUncheckedId("1");
                                     }
 
                                     @Override
