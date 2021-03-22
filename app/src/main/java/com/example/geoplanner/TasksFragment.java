@@ -354,7 +354,7 @@ public class TasksFragment extends Fragment {
                         public void onDataChange(DataSnapshot dataSnapshot) {
 //                                String taskID = dataSnapshot.getValue().toString();
 //                                String id = taskID.substring(1,2);
-//                                System.out.println(id);
+                                System.out.println("on data change 2");
 //                                newID = Integer.parseInt(id) + 1;
 
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -371,6 +371,8 @@ public class TasksFragment extends Fragment {
                                         .child("unchecked")
                                         .child(String.valueOf(newID))
                                         .setValue(taskObj);
+
+                                MyBackgroundService.removeUncheckedId(String.valueOf(newID));
                             }
                         }
 
@@ -388,6 +390,8 @@ public class TasksFragment extends Fragment {
                             .child("unchecked")
                             .child("1")
                             .setValue(taskObj);
+
+                    MyBackgroundService.removeUncheckedId("1");
                 }
             }
 

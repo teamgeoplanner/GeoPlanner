@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="10dp"
+    android:elevation="10dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:id="@+id/silentArea"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="20dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    >
+
+    <TextView
+        android:id="@+id/txtSilentName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:textColor="@color/black"
+        android:text="Name"
+        android:paddingLeft="20dp"/>
+
+    <TextView
+        android:id="@+id/txtLocationName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:textColor="@color/black"
+        android:text="Location"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/txtSilentName"
+        android:paddingLeft="20dp"/>
+
+</RelativeLayout>
+
+</androidx.cardview.widget.CardView>

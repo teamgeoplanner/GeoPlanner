@@ -119,6 +119,7 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                             check.addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    System.out.println("on data change 2");
                                                     int pos = holder.getAdapterPosition();
 
                                                     taskReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -167,6 +168,7 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                 check.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        System.out.println("on data change 2");
                                         int pos = holder.getAdapterPosition();
 
                                         FirebaseDatabase.getInstance().getReference("Tasks")
