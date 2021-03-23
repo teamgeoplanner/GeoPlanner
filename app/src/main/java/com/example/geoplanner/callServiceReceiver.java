@@ -22,8 +22,8 @@ public class callServiceReceiver extends BroadcastReceiver {
     String number;
     SmsManager smsManager= SmsManager.getDefault();
 
-    public static boolean silentService;
-    public static String message;
+    public static boolean silentService = false;
+    public static String message = null;
 
     @Override
     public void onReceive(Context mContext, Intent intent)
@@ -74,10 +74,13 @@ public class callServiceReceiver extends BroadcastReceiver {
                 Toast.makeText(mContext, "Missed Call : "+number, Toast.LENGTH_LONG).show();
                 String Uname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 try{
-
-                    String sms = "Hello,\n\n"+"If you are trying to contact "+Uname+",\n"+Uname+" will not be able to answer your call as "+Uname+" is at WorkPlace"+"\n\n"+"~ GeoPlanner";
-                    smsManager.sendTextMessage(number,null,sms,null,null);
-                    Toast.makeText(mContext,"Message Sent", Toast.LENGTH_LONG).show();
+                    if(silentService) {
+                        smsManager.sendTextMessage(number,null,message+"\n\n"+"~ GeoPlanner",null,null);
+                        Toast.makeText(mContext,"Message Sent", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(mContext,"Message Not Sent", Toast.LENGTH_LONG).show();
+                    }
                 }catch (Exception e){
                     System.out.println("Erroring"+e);
                     Toast.makeText(mContext,e.toString(), Toast.LENGTH_LONG).show();

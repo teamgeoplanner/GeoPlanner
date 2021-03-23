@@ -810,7 +810,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                 }
             }
             callServiceReceiver.silentService = true;
-            callServiceReceiver.message = "";
+            callServiceReceiver.message = null;
             silentMode = false;
         }
     }
