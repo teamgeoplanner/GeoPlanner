@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
 
@@ -17,6 +20,10 @@ public class callServiceReceiver extends BroadcastReceiver {
     private String callerPhoneNumber;
     private Context saveContext;
     String number;
+    SmsManager smsManager= SmsManager.getDefault();
+
+    public static boolean silentService;
+    public static String message;
 
     @Override
     public void onReceive(Context mContext, Intent intent)
@@ -64,9 +71,17 @@ public class callServiceReceiver extends BroadcastReceiver {
             // If phone was ringing(ring=true) and not received(callReceived=false) , then it is a missed call
             if(ring==true&&callReceived==false)
             {
-//                if(callerPhoneNumber != null) {
-                    Toast.makeText(mContext, "missed call : "+number, Toast.LENGTH_LONG).show();
-//                }
+                Toast.makeText(mContext, "Missed Call : "+number, Toast.LENGTH_LONG).show();
+                String Uname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                try{
+
+                    String sms = "Hello,\n\n"+"If you are trying to contact "+Uname+",\n"+Uname+" will not be able to answer your call as "+Uname+" is at WorkPlace"+"\n\n"+"~ GeoPlanner";
+                    smsManager.sendTextMessage(number,null,sms,null,null);
+                    Toast.makeText(mContext,"Message Sent", Toast.LENGTH_LONG).show();
+                }catch (Exception e){
+                    System.out.println("Erroring"+e);
+                    Toast.makeText(mContext,e.toString(), Toast.LENGTH_LONG).show();
+                }
 
                 //workingWithFunctions();
                 ring=false;

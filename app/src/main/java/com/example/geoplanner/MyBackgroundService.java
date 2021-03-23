@@ -67,7 +67,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     private static final String EXTRA_STARTED_FROM_NOTIFICATION = "com.example.geoplanner" + ".started_from_notification";
     private final IBinder mBinder = new LocalBinder();
 
-    private static final long UPDATE_INTERVAL_IN_MIL = 10000;
+    private static final long UPDATE_INTERVAL_IN_MIL = 30000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MIL = UPDATE_INTERVAL_IN_MIL / 2;
     private static final int NOTI_ID = 1223;
     private boolean mChangingConfiguration = false;
@@ -614,6 +614,10 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                             if (n.isNotificationPolicyAccessGranted()) {
                                                 AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                                                 audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+
+                                                callServiceReceiver.silentService = true;
+                                                callServiceReceiver.message = dataSnapshot1.child("message").getValue().toString();
+                                                System.out.println("message: " + callServiceReceiver.message);
                                             } else {
                                                 // Ask the user to grant access
                                                 Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
@@ -790,7 +794,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     @Override
     public void onKeyExited(String key) {
-        sendNotification("GeoPlanner", String.format("%s exited marked area", key));
+//        sendNotification("GeoPlanner", String.format("%s exited marked area", key));
 
         if(silentMode) {
             NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -805,6 +809,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                     startActivity(intent);
                 }
             }
+            callServiceReceiver.silentService = true;
+            callServiceReceiver.message = "";
             silentMode = false;
         }
     }

@@ -1,14 +1,17 @@
 package com.example.geoplanner;
 
 public class model2 {
-    String sname, LocationID;
+    String sname;
+    String LocationID;
+    String message;
 
     public model2() {
     }
 
-    public model2(String sname, String LocationID) {
+    public model2(String sname, String LocationID, String message) {
         this.sname = sname;
         this.LocationID = LocationID;
+        this.message = message;
     }
 
     public String getSname() {
@@ -25,5 +28,13 @@ public class model2 {
 
     public void setLocationID(String locationID) {
         LocationID = locationID;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

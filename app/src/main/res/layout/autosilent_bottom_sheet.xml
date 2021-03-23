@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:background="@android:color/transparent"
-            android:hint="Task Name"
+            android:hint="Title"
             android:paddingLeft="20dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
@@ -87,6 +87,23 @@
         android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="20dp" />
+
+    <EditText
+        android:id="@+id/txtMessage"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/multiline_textbox"
+        android:ems="10"
+        android:hint="Message"
+        android:inputType="textMultiLine"
+        android:minLines="5"
+        android:paddingTop="25dp"
+        android:paddingBottom="25dp"
+        android:gravity="top|left"
+        android:textColorHint="@color/gray"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp" />
 
 
 </LinearLayout>

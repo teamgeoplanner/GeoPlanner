@@ -88,7 +88,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.READ_CALL_LOG
+                        Manifest.permission.READ_CALL_LOG,
+                        Manifest.permission.SEND_SMS
                 ))
                 .withListener(new MultiplePermissionsListener() {
                     @Override
@@ -102,21 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 startActivity(intent);
                             }
                         }
-
-
-//                        button.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                mService.requestLocationUpdates();
-//                            }
-//                        });
-
-//                        button2.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                mService.removeLocationUpdates();
-//                            }
-//                        });
 
 
                         bindService(new Intent(MapsActivity.this, MyBackgroundService.class),
