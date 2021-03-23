@@ -67,7 +67,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     private static final String EXTRA_STARTED_FROM_NOTIFICATION = "com.example.geoplanner" + ".started_from_notification";
     private final IBinder mBinder = new LocalBinder();
 
-    private static final long UPDATE_INTERVAL_IN_MIL = 30000;
+    private static final long UPDATE_INTERVAL_IN_MIL = 10000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MIL = UPDATE_INTERVAL_IN_MIL / 2;
     private static final int NOTI_ID = 1223;
     private boolean mChangingConfiguration = false;
