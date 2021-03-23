@@ -66,7 +66,7 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
                     }
                     String address = addresses.get(0).getAddressLine(0);
 
-                    holder.locationName.setText(holder.locationName.getText() + address);
+                    holder.locationName.setText(address);
 
                 }
             }
