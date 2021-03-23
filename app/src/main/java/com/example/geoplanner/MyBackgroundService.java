@@ -809,7 +809,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                     startActivity(intent);
                 }
             }
-            callServiceReceiver.silentService = true;
+            callServiceReceiver.silentService = false;
             callServiceReceiver.message = null;
             silentMode = false;
         }
