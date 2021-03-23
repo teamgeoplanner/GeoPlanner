@@ -1,6 +1,5 @@
 package com.example.geoplanner;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.location.Address;
@@ -13,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +20,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,33 +34,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import static com.example.geoplanner.TasksFragment.adapter1;
-
-///**
-// * A simple {@link Fragment} subclass.
-// * Use the {@link TaskDetailFragment#newInstance} factory method to
-// * create an instance of this fragment.
-// */
-public class TaskDetailFragment extends Fragment {
-
-    EditText taskName;
-    Button btnLocation;
-    Button btnSave;
-    TextView displayLocation;
-    ImageView btnBack;
-    ImageButton btnDelete;
-
-    Dialog dialog;
-
-    String newLocID;
-
-    DatabaseReference locReff = FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-    LatLng location;
-
-    Double latitude, longitude;
-
-    DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link silent_detail#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class silent_detail extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -77,31 +50,52 @@ public class TaskDetailFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    String TName;
-    String taskID;
-    String checked;
+    String Silentname;
+    String Id;
+    String newLocID;
 
-    public TaskDetailFragment(String TName, String taskID, String s) {
-        this.TName = TName;
-        this.taskID = taskID;
-        checked = s;
+    EditText silentName;
+    EditText txtMessage;
+
+    Button btnLocation;
+    Button btnSave;
+
+    LatLng location;
+
+    Dialog dialog;
+
+    TextView displayLocation;
+
+    ImageView btnBack;
+    ImageButton btnDelete;
+
+    DatabaseReference locReff = FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+    DatabaseReference silentReff = FirebaseDatabase.getInstance().getReference("Silent").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+    Double latitude, longitude;
+
+    public silent_detail() {
+        // Required empty public constructor
     }
 
-    public TaskDetailFragment() {
+    public silent_detail(String sname, String id) {
+
+        Silentname = sname;
+        Id = id;
 
     }
 
-    //    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//     * @param param1 Parameter 1.
-//     * @param param2 Parameter 2.
-//     * @return A new instance of fragment TaskDetailFragment.
-//     */
-//    // TODO: Rename and change types and number of parameters
-    public static TaskDetailFragment newInstance(String param1, String param2) {
-        TaskDetailFragment fragment = new TaskDetailFragment();
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment silent_detail.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static silent_detail newInstance(String param1, String param2) {
+        silent_detail fragment = new silent_detail();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -122,26 +116,29 @@ public class TaskDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_task_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_silent_detail, container, false);
 
-        taskName = view.findViewById(R.id.txtTask);
+        silentName = view.findViewById(R.id.txtSilent);
         btnLocation = view.findViewById(R.id.btnAddLocation);
         displayLocation = view.findViewById(R.id.textDispLoc);
         btnBack = view.findViewById(R.id.btnBack);
         btnSave = view.findViewById(R.id.btnSave);
         btnDelete = view.findViewById(R.id.btnDeleted);
+        txtMessage = view.findViewById(R.id.txtSilentMessage);
 
-        taskName.setText(TName);
+        silentName.setText(Silentname);
 
-        FirebaseDatabase.getInstance().getReference("Tasks")
+
+        FirebaseDatabase.getInstance().getReference("Silent")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(checked)
-                .child(taskID)
+                .child(Id)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         String locID;
                         locID = String.valueOf(snapshot.child("locationID").getValue());
+
+                        txtMessage.setText(snapshot.child("message").getValue().toString());
 
                         if(locID != "null") {
                             locReff.child(locID)
@@ -181,7 +178,9 @@ public class TaskDetailFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateTaskInfo();
+                updateSilentInfo();
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).addToBackStack(null).commit();
             }
         });
 
@@ -189,7 +188,7 @@ public class TaskDetailFragment extends Fragment {
             @Override
             public void onClick(final View view) {
                 dialog = new Dialog(getContext());
-                dialog.setContentView(R.layout.delete_task_dialog);
+                dialog.setContentView(R.layout.delete_silent_dialog);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     dialog.getWindow().setBackgroundDrawable(getContext().getDrawable(R.drawable.dialog_background));
                 }
@@ -198,17 +197,15 @@ public class TaskDetailFragment extends Fragment {
 
                 Button btnDel, btnCancel;
 
-
                 btnDel = dialog.findViewById(R.id.deleteBtn);
                 btnCancel = dialog.findViewById(R.id.cancelBtn);
-
 
 
                 //Click event of Reset Password Bitton
                 btnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        deleteTask();
+                        deleteSilent();
 
                         dialog.dismiss();
                     }
@@ -230,62 +227,51 @@ public class TaskDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).addToBackStack(null).commit();
             }
         });
 
-        return  view;
+       return view;
     }
 
-    private void deleteTask() {
+    private void dispLoc() {
+        if(latitude != null && longitude != null) {
+            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
 
-        Query uncheck = taskReff.child(checked);
-        uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                snapshot.child(taskID).getRef().removeValue();
-
-                String locID = (String) snapshot.child(taskID).child("locationID").getValue();
-
-                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(locID)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                snapshot.getRef().removeValue();
-
-                                AppCompatActivity activity = (AppCompatActivity) getContext();
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
+            List<Address> addresses  = null;
+            try {
+                addresses = geocoder.getFromLocation(latitude ,longitude, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            String address = addresses.get(0).getAddressLine(0);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+            displayLocation.setText(address);
+            displayLocation.setVisibility(View.VISIBLE);
+        } else {
+            btnLocation.setText("Add Location");
+        }
     }
 
-    private void updateTaskInfo() {
-        String tskName = taskName.getText().toString();
+    private void updateSilentInfo() {
+        String sName = silentName.getText().toString();
 
-        FirebaseDatabase.getInstance().getReference("Tasks")
+        FirebaseDatabase.getInstance().getReference("Silent")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(checked)
-                .child(taskID)
-                .child("tname")
-                .setValue(tskName);
+                .child(Id)
+                .child("sname")
+                .setValue(sName);
+
+        FirebaseDatabase.getInstance().getReference("Silent")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(Id)
+                .child("message")
+                .setValue(txtMessage.getText().toString());
 
         if(location != null) {
-            FirebaseDatabase.getInstance().getReference("Tasks")
+            FirebaseDatabase.getInstance().getReference("Silent")
                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .child(checked)
-                    .child(taskID)
+                    .child(Id)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -294,6 +280,8 @@ public class TaskDetailFragment extends Fragment {
 
                             if(!locID.equals("null")) {
                                 locReff.child(locID).setValue(location);
+//                                AppCompatActivity activity = (AppCompatActivity) getView().getContext();
+//                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).addToBackStack(null).commit();
                             } else {
                                 addNewLoc(snapshot);
                             }
@@ -329,6 +317,8 @@ public class TaskDetailFragment extends Fragment {
                                         System.out.println("Locid" + id);
 
                                         location = null;
+//                                        AppCompatActivity activity = (AppCompatActivity) getContext();
+//                                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).addToBackStack(null).commit();
                                     }
                                 }
 
@@ -355,32 +345,39 @@ public class TaskDetailFragment extends Fragment {
         });
     }
 
-    private void dispLoc() {
-        if(latitude != null && longitude != null) {
-            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+    private void deleteSilent(){
 
-            List<Address> addresses  = null;
-            try {
-                addresses = geocoder.getFromLocation(latitude ,longitude, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
+        Query sQuery = silentReff;
+        sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                snapshot.child(Id).getRef().removeValue();
+
+                String locID = (String) snapshot.child(Id).child("locationID").getValue();
+
+                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(locID)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                snapshot.getRef().removeValue();
+
+                                AppCompatActivity activity = (AppCompatActivity) getContext();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
             }
-            String address = addresses.get(0).getAddressLine(0);
 
-            displayLocation.setText(address);
-            displayLocation.setVisibility(View.VISIBLE);
-        } else {
-            btnLocation.setText("Add Location");
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
-
-
-
-//    public void onBackPressed() {
-//        AppCompatActivity activity = (AppCompatActivity) getContext();
-//        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).commit();
-//    }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -393,7 +390,7 @@ public class TaskDetailFragment extends Fragment {
 
                 location = new LatLng(latitude, longitude);
 
-                //            locationName.setText((int) (location.latitude + location.longitude));
+//                locationName.setText((int) (location.latitude + location.longitude));
                 System.out.println("location" + location);
 
 
@@ -418,6 +415,4 @@ public class TaskDetailFragment extends Fragment {
         }
 
     }
-
-
 }

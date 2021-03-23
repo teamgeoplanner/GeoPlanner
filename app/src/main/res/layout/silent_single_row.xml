@@ -39,7 +39,7 @@
         android:textSize="20dp"
         android:fontFamily="@font/sf_pro_display_light"
         android:textColor="@color/black"
-        android:text="Location"
+        android:text="Location: \n"
         android:layout_marginTop="5dp"
         android:layout_below="@+id/txtSilentName"
         android:paddingLeft="20dp"/>
