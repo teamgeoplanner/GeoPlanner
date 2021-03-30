@@ -27,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myviewholder> {
 
     DatabaseReference taskReff = FirebaseDatabase.getInstance().getReference("Tasks");
+    DatabaseReference locReff = FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
     int newID;
     String locID;
 
@@ -127,7 +128,25 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                                             .child(String.valueOf(newID))
                                                             .setValue(getSnapshots().getSnapshot(pos).getValue());
 
+                                                    final String locId = getSnapshots().getSnapshot(pos).child("locationID").getValue().toString();
+
                                                     getSnapshots().getSnapshot(pos).getRef().removeValue();
+
+                                                    locReff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            Object locData = snapshot.child(locId).getValue();
+                                                            snapshot.child(locId).getRef().removeValue();
+
+                                                            locReff.child(locId).setValue(locData);
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                                        }
+                                                    });
+
 
                                                     MyBackgroundService.removeUncheckedId(String.valueOf(newID));
                                                 }
@@ -176,8 +195,25 @@ public class myadapter2 extends FirebaseRecyclerAdapter<model, myadapter2.myview
                                                 .child("unchecked")
                                                 .child("1")
                                                 .setValue(getSnapshots().getSnapshot(pos).getValue());
+
+                                        final String locId = getSnapshots().getSnapshot(pos).child("locationID").getValue().toString();
                                         
                                         getSnapshots().getSnapshot(pos).getRef().removeValue();
+
+                                        locReff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                Object locData = snapshot.child(locId).getValue();
+                                                snapshot.child(locId).getRef().removeValue();
+
+                                                locReff.child(locId).setValue(locData);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+
+                                            }
+                                        });
 
                                         MyBackgroundService.removeUncheckedId("1");
                                     }

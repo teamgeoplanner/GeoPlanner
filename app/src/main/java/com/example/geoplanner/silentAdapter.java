@@ -6,13 +6,10 @@ import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,15 +78,15 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
             @Override
             public void onClick(final View view) {
 
-                Query uncheck = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("unchecked");
-                uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
+                Query sQuery = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         int pos = holder.getAdapterPosition();
                         String id = getSnapshots().getSnapshot(pos).getKey();
 
                         AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new silent_detail(model2.getSname(),id)).addToBackStack(null).commit();
+                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new SilentDetailFragment(model2.getSname(),id)).addToBackStack(null).commit();
                     }
 
                     @Override

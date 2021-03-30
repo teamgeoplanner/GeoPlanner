@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/autoMsgBottomSheetContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="20dp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/relative"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/txtAutoMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@android:color/transparent"
+            android:hint="Title"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_toLeftOf="@id/btnSaveAutoMsg"
+            android:textColorHint="@color/gray"
+            android:textSize="22dp" />
+
+        <Button
+            android:id="@+id/btnSaveAutoMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:text="Save"
+            android:textSize="22dp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="32dp"
+            android:background="@drawable/button" />
+
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+
+        <ImageButton
+            android:id="@+id/btnAddLocation"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/button_r2"
+            android:layout_marginLeft="40dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_toRightOf="@+id/btnAddDate"
+            app:srcCompat="@drawable/ic_location" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/text_background"
+        android:text="TextView"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:visibility="gone"
+        android:drawableLeft="@drawable/ic_location_black"
+        android:drawablePadding="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="15dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="20dp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/txtOnEnterExit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:textColor="@color/black"
+            android:text="Send message on"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="30dp"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_toRightOf="@+id/txtOnEnterExit"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/contacts_background" >
+
+            <Spinner
+                android:id="@+id/onEnterExit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingTop="7dp"/>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/txtMessage"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/multiline_textbox"
+        android:ems="10"
+        android:hint="Message"
+        android:inputType="textMultiLine"
+        android:minLines="5"
+        android:paddingTop="25dp"
+        android:paddingBottom="25dp"
+        android:gravity="top|left"
+        android:textColorHint="@color/gray"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp" />
+
+    <Button
+        android:id="@+id/btnAddContact"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:text="Add Contact"
+        android:textSize="22dp"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/button" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recContacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="40dp" />
+
+</LinearLayout>

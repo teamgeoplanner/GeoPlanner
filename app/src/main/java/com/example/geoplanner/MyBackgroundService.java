@@ -24,8 +24,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -87,16 +89,25 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     private DatabaseReference locationReff;
     private DatabaseReference taskReff;
 
+    SmsManager smsManager= SmsManager.getDefault();
+
     Double latVal, longVal;
 
     List<GeoQuery> gqlist;
 
     static List<String> locEntered = new ArrayList<>();
+    static List<String> msglocEntered = new ArrayList<>();
+    static List<String> msgexitlocEntered = new ArrayList<>();
 
     Boolean bool = false;
     Boolean bool2 = false;
     Boolean bool3 = false;
     Boolean bool4 = false;
+    Boolean bool5 = false;
+    Boolean bool6 = false;
+    Boolean bool7 = false;
+    Boolean bool8 = false;
+    Boolean bool9 = false;
 
     Boolean silentMode = false;
 
@@ -546,6 +557,9 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                         bool3 = true;
                         bool4 = true;
+                        bool5 = true;
+                        bool6 = true;
+                        bool9 = true;
 //                        taskReff.child("unchecked").orderByChild("locationID").equalTo(snapshot.getKey()).addChildEventListener(new ChildEventListener() {
 //                            @Override
 //                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -581,6 +595,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                         if (!locEntered.contains(dataSnapshot1.getKey())) {
                                             sendNotification("Reminder", String.format((String) dataSnapshot1.child("tname").getValue()));
                                             addToChecked(dataSnapshot1.getKey());
+//                                            dataSnapshot1.getRef().removeValue();
                                             locEntered.add(dataSnapshot1.getKey());
                                             System.out.println("locEntered" + locEntered);
                                         }
@@ -643,6 +658,92 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                 bool4 = false;
                             }
                         }, 5000);
+
+                        FirebaseDatabase.getInstance().getReference("AutoMessage").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByChild("locationID").equalTo(snapshot.getKey()).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                        if (bool5) {
+                                            if (dataSnapshot.child("sendAt").getValue().toString().equals("enter")) {
+
+                                                if (!msglocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
+
+                                                    final String message = dataSnapshot.child("message").getValue().toString();
+
+                                                    dataSnapshot.child("contacts").getRef().addValueEventListener(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()) {
+                                                                if (bool6) {
+                                                                    String contactNo = dataSnapshot1.child("number").getValue().toString();
+
+                                                                    smsManager.sendTextMessage(contactNo, null, message + "\n\n" + "~ GeoPlanner", null, null);
+                                                                    System.out.println("message");
+                                                                    Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                                                                    sendNotification("GeoPlanner", "message sent");
+                                                                }
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                                        }
+                                                    });
+                                                }
+
+                                                msglocEntered.add(dataSnapshot.child("locationID").getValue().toString());
+                                                System.out.println("locEntered" + msglocEntered);
+                                                sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
+                                            }
+
+                                            else if (dataSnapshot.child("sendAt").getValue().toString().equals("exit")) {
+
+                                                if (!msgexitlocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
+                                                    msgexitlocEntered.add(dataSnapshot.child("locationID").getValue().toString());
+                                                    System.out.println("msgexitloc" + msgexitlocEntered);
+                                                }
+
+                                            }
+                                        }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+
+                        final Handler handler2 = new Handler();
+                        handler2.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Do something after 5s = 5000ms
+                                bool5 = false;
+                            }
+                        }, 5000);
+
+                        final Handler handler4 = new Handler();
+                        handler4.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Do something after 5s = 5000ms
+                                bool9 = false;
+                            }
+                        }, 5000);
+
+                        final Handler handler3 = new Handler();
+                        handler3.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Do something after 5s = 5000ms
+                                bool6 = false;
+                            }
+                        }, 5000);
+
+
                     }
                 }
                     bool = false;
@@ -813,6 +914,91 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
             callServiceReceiver.message = null;
             silentMode = false;
         }
+
+
+        bool7 = true;
+
+        locationReff.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(bool7) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                        Location startPoint=new Location("locationA");
+                        startPoint.setLatitude(mLocation.getLatitude());
+                        startPoint.setLongitude(mLocation.getLongitude());
+
+                        Location endPoint=new Location("locationA");
+                        endPoint.setLatitude((Double) snapshot.child("latitude").getValue());
+                        endPoint.setLongitude((Double) snapshot.child("longitude").getValue());
+
+                        double distance=startPoint.distanceTo(endPoint);
+
+
+                        if(distance >= 100) {
+                            if(msglocEntered.contains(snapshot.getKey())) {
+                                msglocEntered.remove(snapshot.getKey());
+                                System.out.println("msgloc: " + msglocEntered);
+                                sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
+                            }
+
+                            if(msgexitlocEntered.contains(snapshot.getKey())) {
+                                msgexitlocEntered.remove(snapshot.getKey());
+                                System.out.println("msgexitloc: " + msgexitlocEntered);
+
+                                bool8 = true;
+
+                                FirebaseDatabase.getInstance().getReference("AutoMessage").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByChild("locationID").equalTo(snapshot.getKey()).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                                            if (bool8) {
+                                                final String message = dataSnapshot.child("message").getValue().toString();
+
+                                                dataSnapshot.child("contacts").getRef().addValueEventListener(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        for (DataSnapshot dataSnapshot1 : snapshot.getChildren()) {
+                                                            if (bool8) {
+                                                                String contactNo = dataSnapshot1.child("number").getValue().toString();
+
+                                                                smsManager.sendTextMessage(contactNo, null, message + "\n\n" + "~ GeoPlanner", null, null);
+                                                                System.out.println("message");
+                                                                Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
+
+                            }
+                        }
+                    }
+                    bool7 = false;
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override

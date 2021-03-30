@@ -17,6 +17,11 @@
             android:id="@+id/nav_automsg"
             android:icon="@drawable/ic_automsg"
             android:title="Auto-Message" />
+
+        <item
+            android:id="@+id/nav_background"
+            android:icon="@drawable/ic_background_service"
+            android:title="Start Background Service" />
     </group>
 
     <item android:title="Account">

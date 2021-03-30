@@ -36,10 +36,10 @@ import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link silent_detail#newInstance} factory method to
+ * Use the {@link SilentDetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class silent_detail extends Fragment {
+public class SilentDetailFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -74,11 +74,11 @@ public class silent_detail extends Fragment {
 
     Double latitude, longitude;
 
-    public silent_detail() {
+    public SilentDetailFragment() {
         // Required empty public constructor
     }
 
-    public silent_detail(String sname, String id) {
+    public SilentDetailFragment(String sname, String id) {
 
         Silentname = sname;
         Id = id;
@@ -91,11 +91,11 @@ public class silent_detail extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment silent_detail.
+     * @return A new instance of fragment SilentDetailFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static silent_detail newInstance(String param1, String param2) {
-        silent_detail fragment = new silent_detail();
+    public static SilentDetailFragment newInstance(String param1, String param2) {
+        SilentDetailFragment fragment = new SilentDetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -362,7 +362,7 @@ public class silent_detail extends Fragment {
                                 snapshot.getRef().removeValue();
 
                                 AppCompatActivity activity = (AppCompatActivity) getContext();
-                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new TasksFragment()).addToBackStack(null).commit();
+                                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragments_container, new AutoSilentFragment()).addToBackStack(null).commit();
                             }
 
                             @Override
