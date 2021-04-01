@@ -18,6 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     android:paddingTop="15dp"
     android:paddingBottom="15dp"
     >
@@ -43,6 +44,13 @@
         android:layout_marginTop="5dp"
         android:layout_below="@+id/txtSilentName"
         android:paddingLeft="20dp"/>
+
+    <Switch
+        android:id="@+id/switchStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Off"
+        android:layout_alignParentRight="true"/>
 
 </RelativeLayout>
 

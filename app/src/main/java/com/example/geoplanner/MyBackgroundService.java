@@ -629,23 +629,25 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 for (DataSnapshot dataSnapshot1 : snapshot.getChildren()) {
                                     if(bool4) {
-                                        silentMode = true;
-                                        NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                            if (n.isNotificationPolicyAccessGranted()) {
-                                                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                                                audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                                        if(dataSnapshot1.child("status").getValue().toString().equals("on")) {
+                                            silentMode = true;
+                                            NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                if (n.isNotificationPolicyAccessGranted()) {
+                                                    AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                                                    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 
-                                                callServiceReceiver.silentService = true;
-                                                callServiceReceiver.message = dataSnapshot1.child("message").getValue().toString();
-                                                callServiceReceiver.id = dataSnapshot1.getKey();
-                                                silentLocId = dataSnapshot1.child("locationID").getValue().toString();
-                                                System.out.println("message: " + callServiceReceiver.message);
-                                            } else {
-                                                // Ask the user to grant access
-                                                Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                startActivity(intent);
+                                                    callServiceReceiver.silentService = true;
+                                                    callServiceReceiver.message = dataSnapshot1.child("message").getValue().toString();
+                                                    callServiceReceiver.id = dataSnapshot1.getKey();
+                                                    silentLocId = dataSnapshot1.child("locationID").getValue().toString();
+                                                    System.out.println("message: " + callServiceReceiver.message);
+                                                } else {
+                                                    // Ask the user to grant access
+                                                    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                }
                                             }
                                         }
                                     }
@@ -672,46 +674,46 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                         if (bool5) {
-                                            if (dataSnapshot.child("sendAt").getValue().toString().equals("enter")) {
+                                            if (dataSnapshot.child("status").getValue().toString().equals("on")) {
+                                                if (dataSnapshot.child("sendAt").getValue().toString().equals("enter")) {
 
-                                                if (!msglocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
+                                                    if (!msglocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
 
-                                                    final String message = dataSnapshot.child("message").getValue().toString();
+                                                        final String message = dataSnapshot.child("message").getValue().toString();
 
-                                                    dataSnapshot.child("contacts").getRef().addValueEventListener(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()) {
-                                                                if (bool6) {
-                                                                    String contactNo = dataSnapshot1.child("number").getValue().toString();
+                                                        dataSnapshot.child("contacts").getRef().addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                                for (DataSnapshot dataSnapshot1 : snapshot.getChildren()) {
+                                                                    if (bool6) {
+                                                                        String contactNo = dataSnapshot1.child("number").getValue().toString();
 
-                                                                    smsManager.sendTextMessage(contactNo, null, message + "\n\n" + "~ GeoPlanner", null, null);
-                                                                    System.out.println("message");
-                                                                    Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
-                                                                    sendNotification("GeoPlanner", "message sent");
+                                                                        smsManager.sendTextMessage(contactNo, null, message + "\n\n" + "~ GeoPlanner", null, null);
+                                                                        System.out.println("message");
+                                                                        Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                                                                        sendNotification("GeoPlanner", "message sent");
+                                                                    }
                                                                 }
                                                             }
-                                                        }
 
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError error) {
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError error) {
 
-                                                        }
-                                                    });
+                                                            }
+                                                        });
+                                                    }
+
+                                                    msglocEntered.add(dataSnapshot.child("locationID").getValue().toString());
+                                                    System.out.println("locEntered" + msglocEntered);
+                                                    sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
+                                                } else if (dataSnapshot.child("sendAt").getValue().toString().equals("exit")) {
+
+                                                    if (!msgexitlocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
+                                                        msgexitlocEntered.add(dataSnapshot.child("locationID").getValue().toString());
+                                                        System.out.println("msgexitloc" + msgexitlocEntered);
+                                                    }
+
                                                 }
-
-                                                msglocEntered.add(dataSnapshot.child("locationID").getValue().toString());
-                                                System.out.println("locEntered" + msglocEntered);
-                                                sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
-                                            }
-
-                                            else if (dataSnapshot.child("sendAt").getValue().toString().equals("exit")) {
-
-                                                if (!msgexitlocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
-                                                    msgexitlocEntered.add(dataSnapshot.child("locationID").getValue().toString());
-                                                    System.out.println("msgexitloc" + msgexitlocEntered);
-                                                }
-
                                             }
                                         }
                                 }

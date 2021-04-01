@@ -226,7 +226,7 @@ public class AutoSilentFragment extends Fragment {
 
                                             locationReff.child(newLocID).setValue(location);
 
-                                            final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString());
+                                            final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString(), "on");
 
                                             addData(silentObj);
 
@@ -244,7 +244,7 @@ public class AutoSilentFragment extends Fragment {
                         newLocID = "0";
                         locationReff.child(newLocID).setValue(location);
 
-                        final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString());
+                        final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString(), "on");
 
                         addData(silentObj);
 
@@ -260,7 +260,7 @@ public class AutoSilentFragment extends Fragment {
         } else {
             newLocID = null;
 
-            final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString());
+            final model2 silentObj = new model2(txtSilent.getText().toString(), String.valueOf(newLocID), message.getText().toString(), "on");
 
             addData(silentObj);
         }

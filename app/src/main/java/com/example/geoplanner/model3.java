@@ -5,6 +5,7 @@ public class model3 {
     String LocationID;
     String message;
     String sendAt;
+    String status;
 
     public model3() {
 
@@ -18,11 +19,20 @@ public class model3 {
         this.sendAt = sendAt;
     }
 
-    public model3(String mname, String locationID, String message, String sendAt) {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public model3(String mname, String locationID, String message, String sendAt, String status) {
         this.mname = mname;
         LocationID = locationID;
         this.message = message;
         this.sendAt = sendAt;
+        this.status = status;
     }
 
     public String getMname() {

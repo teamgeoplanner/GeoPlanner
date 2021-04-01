@@ -6,6 +6,8 @@ import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +45,11 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
     protected void onBindViewHolder(@NonNull final myviewholder holder, int position, @NonNull final model2 model2) {
         holder.silentName.setText(model2.getSname());
 
+        if(model2.getStatus().equals("on")) {
+            holder.status.setChecked(true);
+            holder.status.setText("On");
+        }
+
         locID =model2.getLocationID();
 
         locReff.child(locID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -71,6 +78,46 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+
+        holder.status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(holder.status.isChecked()) {
+                    holder.status.setText("On");
+
+                    Query sQuery = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int pos = holder.getAdapterPosition();
+                            getSnapshots().getSnapshot(pos).getRef().child("status").setValue("on");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+                else {
+                    holder.status.setText("Off");
+
+                    Query sQuery = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int pos = holder.getAdapterPosition();
+                            getSnapshots().getSnapshot(pos).getRef().child("status").setValue("off");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
             }
         });
 
@@ -110,6 +157,7 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
 
         TextView silentName, locationName;
         CardView silentClick;
+        Switch status;
 
         public myviewholder(@NonNull View itemView) {
             super(itemView);
@@ -117,6 +165,7 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
             silentName = itemView.findViewById(R.id.txtSilentName);
             locationName = itemView.findViewById(R.id.txtLocationName);
             silentClick = itemView.findViewById(R.id.silentArea);
+            status = itemView.findViewById(R.id.switchStatus);
         }
     }
 

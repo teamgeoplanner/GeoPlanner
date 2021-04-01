@@ -4,14 +4,24 @@ public class model2 {
     String sname;
     String LocationID;
     String message;
+    String status;
 
     public model2() {
     }
 
-    public model2(String sname, String LocationID, String message) {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public model2(String sname, String LocationID, String message, String status) {
         this.sname = sname;
         this.LocationID = LocationID;
         this.message = message;
+        this.status = status;
     }
 
     public String getSname() {

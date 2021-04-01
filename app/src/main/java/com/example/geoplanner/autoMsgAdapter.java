@@ -6,6 +6,8 @@ import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +46,11 @@ public class autoMsgAdapter extends FirebaseRecyclerAdapter<model3, autoMsgAdapt
     protected void onBindViewHolder(@NonNull final autoMsgAdapter.myviewholder holder, int position, @NonNull final model3 model3) {
         holder.autoMsgName.setText(model3.getMname());
 
+        if(model3.getStatus().equals("on")) {
+            holder.status.setChecked(true);
+            holder.status.setText("On");
+        }
+
         locID = model3.getLocationID();
 
         locReff.child(locID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -72,6 +79,46 @@ public class autoMsgAdapter extends FirebaseRecyclerAdapter<model3, autoMsgAdapt
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+
+        holder.status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(holder.status.isChecked()) {
+                    holder.status.setText("On");
+
+                    Query sQuery = autoMsgReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int pos = holder.getAdapterPosition();
+                            getSnapshots().getSnapshot(pos).getRef().child("status").setValue("on");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+                else {
+                    holder.status.setText("Off");
+
+                    Query sQuery = autoMsgReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int pos = holder.getAdapterPosition();
+                            getSnapshots().getSnapshot(pos).getRef().child("status").setValue("off");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
             }
         });
 
@@ -112,6 +159,7 @@ public class autoMsgAdapter extends FirebaseRecyclerAdapter<model3, autoMsgAdapt
 
         TextView autoMsgName, locationName;
         CardView autoMsgClick;
+        Switch status;
 
         public myviewholder(@NonNull View itemView) {
             super(itemView);
@@ -119,6 +167,7 @@ public class autoMsgAdapter extends FirebaseRecyclerAdapter<model3, autoMsgAdapt
             autoMsgName = itemView.findViewById(R.id.txtAutoMessageName);
             locationName = itemView.findViewById(R.id.txtLocationName);
             autoMsgClick = itemView.findViewById(R.id.autoMessageArea);
+            status = itemView.findViewById(R.id.switchStatus);
         }
     }
 }

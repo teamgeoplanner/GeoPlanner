@@ -218,7 +218,7 @@ public class AutoMsgFragment extends Fragment {
 
                                             locationReff.child(newLocID).setValue(location);
 
-                                            final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit);
+                                            final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit, "on");
 
                                             addData(automsgObj);
 
@@ -236,7 +236,7 @@ public class AutoMsgFragment extends Fragment {
                         newLocID = "0";
                         locationReff.child(newLocID).setValue(location);
 
-                        final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit);
+                        final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit, "on");
 
                         addData(automsgObj);
 
@@ -252,7 +252,7 @@ public class AutoMsgFragment extends Fragment {
         } else {
             newLocID = null;
 
-            final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit);
+            final model3 automsgObj = new model3(txtAutoMessage.getText().toString(), String.valueOf(newLocID), message.getText().toString(), entryexit, "on");
 
             addData(automsgObj);
         }
