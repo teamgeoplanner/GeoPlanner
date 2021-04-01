@@ -59,6 +59,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -100,7 +101,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     static List<String> msgexitlocEntered = new ArrayList<>();
 
     Boolean bool = false;
-    Boolean bool2 = false;
+
     Boolean bool3 = false;
     Boolean bool4 = false;
     Boolean bool5 = false;
@@ -113,6 +114,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     Boolean silentMode = false;
 
     String silentLocId = null;
+
+    int i = 1;
 
 
     public MyBackgroundService() {
@@ -789,8 +792,10 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
     }
 
-    private void addToChecked(final String taskKey) {
+    public void addToChecked(final String taskKey) {
         System.out.println("task key:" + taskKey);
+
+        final Boolean[] bool2 = {true};
 
         Query query = taskReff;
 
@@ -812,19 +817,26 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                 Log.d("User key", child.getKey());
                                 Log.d("User val", child.child("tname").getValue().toString());
 
+//                                Random random = new Random();
+//                                int ran = random.nextInt(10-1)+1;
+//                                System.out.println("random num"+ ran);
+
                                 String id = child.getKey();
-                                final int newID = Integer.parseInt(id) + 1;
+                                final int newID = Integer.parseInt(id) + i;
+                                System.out.println("before i:"+i);
+                                i++;
+                                System.out.println("after i:"+i);
 
                                 System.out.println(newID);
 
-                                bool2 = true;
+
                                 Query uncheck = taskReff.child("unchecked").child(taskKey);
 
                                 uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        if (bool2) {
-
+                                        System.out.println("bool2"+ bool2[0]);
+                                        if (bool2[0]) {
 
                                             taskReff
                                                     .child("checked")
@@ -833,7 +845,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                             snapshot.getRef().removeValue();
 
-                                            bool2 = false;
+                                            bool2[0] = false;
                                         }
 
 
@@ -859,11 +871,11 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                     Query uncheck = taskReff.child("unchecked").child(taskKey);
 
-                    bool2 = true;
+
                     uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (bool2) {
+                            if (bool2[0]) {
                                 System.out.println("on data change called");
                                 System.out.println(snapshot.getValue());
 
@@ -875,7 +887,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                 snapshot.getRef().removeValue();
 
-                                bool2 = false;
+                                bool2[0] = false;
                             }
 
 
@@ -898,7 +910,11 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
             }
         });
+
+        i = 1;
     }
+
+
 
     @Override
     public void onKeyExited(String key) {
@@ -1116,3 +1132,4 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
         super.onDestroy();
     }
 }
+
