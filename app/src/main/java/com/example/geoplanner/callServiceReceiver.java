@@ -24,6 +24,7 @@ public class callServiceReceiver extends BroadcastReceiver {
 
     public static boolean silentService = false;
     public static String message = null;
+    public static String id = null;
 
     @Override
     public void onReceive(Context mContext, Intent intent)

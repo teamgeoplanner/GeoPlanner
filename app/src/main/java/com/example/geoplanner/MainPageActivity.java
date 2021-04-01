@@ -8,19 +8,24 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -66,7 +71,8 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.READ_PHONE_STATE,
                         Manifest.permission.READ_CALL_LOG,
-                        Manifest.permission.SEND_SMS
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_CONTACTS
                 ))
                 .withListener(new MultiplePermissionsListener() {
                     @Override
@@ -84,9 +90,27 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        if(permissions.toString().equals("[Permission name: android.permission.ACCESS_BACKGROUND_LOCATION]")) {
-                            System.out.println("permission:"+permissions);
-                        }
+//                        System.out.println("permission:"+permissions);
+//                        if(permissions.toString().equals("[Permission name: android.permission.ACCESS_BACKGROUND_LOCATION]") || permissions.toString().equals("[Permission name: android.permission.ACCESS_COARSE_LOCATION, Permission name: android.permission.ACCESS_FINE_LOCATION]")) {
+//                            System.out.println("permission:"+permissions);
+//
+//
+//                            AlertDialog.Builder adb = new AlertDialog.Builder(MainPageActivity.this);
+//                            adb.setTitle("Title of alert dialog");
+//                            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+//                                    intent.setData(Uri.parse("package:" + getPackageName()));
+//                                    startActivity(intent);
+//                                }
+//                            });
+//                            adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    finish();
+//                                }
+//                            });
+//                            adb.show();
+//                        }
                     }
                 }).check();
 
@@ -190,13 +214,29 @@ public class MainPageActivity extends AppCompatActivity implements NavigationVie
         return true;
     }
 
+    boolean doubleBackToExitPressedOnce = false;
+
     //Event when user clicks Back button
     @Override
     public void onBackPressed() {
         if(drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
+            }
+
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Press again to exit", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
         }
     }
 }

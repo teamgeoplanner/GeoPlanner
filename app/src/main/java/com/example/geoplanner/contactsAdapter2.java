@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -12,18 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class contactsAdapter extends RecyclerView.Adapter<contactsAdapter.ViewHolder> {
+public class contactsAdapter2 extends RecyclerView.Adapter<contactsAdapter2.ViewHolder> {
 
     private List<String> mData;
     private LayoutInflater mInflater;
 
-    contactsAdapter(Context context, List<String> data) {
+    contactsAdapter2(Context context, List<String> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final contactsAdapter2.ViewHolder holder, final int position) {
         String cont = mData.get(position);
         holder.txtContact.setText(cont);
 
@@ -36,10 +35,10 @@ public class contactsAdapter extends RecyclerView.Adapter<contactsAdapter.ViewHo
 //                System.out.println(AutoMsgFragment.contactNo);
 
                 mData.remove(holder.getAdapterPosition());
-                AutoMsgFragment.contactsNo.remove(holder.getAdapterPosition());
+                AutoMsgDetailFragment.contactsNo.remove(holder.getAdapterPosition());
                 notifyDataSetChanged();
 
-                System.out.println("numbers:"+ AutoMsgFragment.contactsNo);
+                System.out.println("numbers:"+ AutoMsgDetailFragment.contactsNo);
                 System.out.println("names:"+ mData);
             }
         });
@@ -51,9 +50,9 @@ public class contactsAdapter extends RecyclerView.Adapter<contactsAdapter.ViewHo
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public contactsAdapter2.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.layout_contact, parent, false);
-        return new ViewHolder(view);
+        return new contactsAdapter2.ViewHolder(view);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -67,6 +66,4 @@ public class contactsAdapter extends RecyclerView.Adapter<contactsAdapter.ViewHo
 
         }
     }
-
-
 }

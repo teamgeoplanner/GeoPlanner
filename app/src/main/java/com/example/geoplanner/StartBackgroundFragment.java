@@ -1,15 +1,20 @@
 package com.example.geoplanner;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.IBinder;
@@ -107,11 +112,17 @@ public class StartBackgroundFragment extends Fragment implements SharedPreferenc
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_start_background, container, false);
 
+        checkPermissions();
+
         Dexter.withActivity(getActivity())
                 .withPermissions(Arrays.asList(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_CALL_LOG,
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_CONTACTS
                 ))
                 .withListener(new MultiplePermissionsListener() {
                     @Override
@@ -132,6 +143,7 @@ public class StartBackgroundFragment extends Fragment implements SharedPreferenc
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+
                                 mService.requestLocationUpdates();
                             }
                         });
@@ -151,18 +163,44 @@ public class StartBackgroundFragment extends Fragment implements SharedPreferenc
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-//                        for(int i=0 ; i<permissions.size() ; i++) {
-                        if(permissions.toString().equals("[Permission name: android.permission.ACCESS_BACKGROUND_LOCATION]")) {
+                        System.out.println("permission:"+permissions);
+                        if(permissions.toString().equals("[Permission name: android.permission.ACCESS_BACKGROUND_LOCATION]") || permissions.toString().equals("[Permission name: android.permission.ACCESS_COARSE_LOCATION, Permission name: android.permission.ACCESS_FINE_LOCATION]")) {
                             System.out.println("permission:"+permissions);
-//                                Toast.makeText(mService, "background permission denied", Toast.LENGTH_SHORT).show();
                         }
-//                        finish();
-
-//                        }
                     }
                 }).check();
 
         return view;
+    }
+
+    private void checkPermissions() {
+        int permissionFineLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCoarseLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionBackgroundLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+
+        if (permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED || permissionBackgroundLocation!= PackageManager.PERMISSION_GRANTED) {
+            AlertDialog.Builder adb = new AlertDialog.Builder(getContext());
+            adb.setTitle("Grant Permissions");
+            adb.setMessage("GeoPlanner requires location permissions to work in background.");
+            adb.setCancelable(false);
+            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + getContext().getPackageName()));
+                    startActivity(intent);
+
+                    getActivity().finish();
+                    System.exit(0);
+                }
+            });
+            adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(getActivity(), MainPageActivity.class);
+                    startActivity(intent);
+                }
+            });
+            adb.show();
+        }
     }
 
     @Override

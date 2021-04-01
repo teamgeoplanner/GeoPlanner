@@ -1,17 +1,21 @@
 package com.example.geoplanner;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -82,6 +86,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        checkPermissions();
+
 
         Dexter.withActivity(this)
                 .withPermissions(Arrays.asList(
@@ -90,7 +96,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.READ_PHONE_STATE,
                         Manifest.permission.READ_CALL_LOG,
-                        Manifest.permission.SEND_SMS
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_CONTACTS
                 ))
                 .withListener(new MultiplePermissionsListener() {
                     @Override
@@ -197,6 +204,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(latLng));
             }
         });
+    }
+
+    private void checkPermissions() {
+        int permissionFineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCoarseLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionBackgroundLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if(permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED || permissionBackgroundLocation!= PackageManager.PERMISSION_GRANTED) {
+                showAlert();
+            }
+        }
+        else {
+            if (permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED) {
+                showAlert();
+            }
+        }
+
+    }
+
+    public void showAlert() {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Grant Permissions");
+        adb.setMessage("GeoPlanner requires location permissions to work in background.");
+        adb.setCancelable(false);
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+
+                finish();
+                System.exit(0);
+            }
+        });
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(MapsActivity.this, MainPageActivity.class);
+                startActivity(intent);
+            }
+        });
+        adb.show();
     }
 
     @Override

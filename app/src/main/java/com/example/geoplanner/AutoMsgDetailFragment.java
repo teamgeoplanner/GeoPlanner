@@ -79,7 +79,7 @@ public class AutoMsgDetailFragment extends Fragment {
     ImageButton btnDelete;
 
     RecyclerView recyclerViewContacts;
-    contactsAdapter contactsAdap;
+    contactsAdapter2 contactsAdap;
 
     ArrayList<String> contactsName = new ArrayList<>();
     public static ArrayList<String> contactsNo = new ArrayList<>();
@@ -149,7 +149,7 @@ public class AutoMsgDetailFragment extends Fragment {
         recyclerViewContacts = view.findViewById(R.id.recContactsList);
         recyclerViewContacts.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        contactsAdap = new contactsAdapter(getContext(), contactsName);
+        contactsAdap = new contactsAdapter2(getContext(), contactsName);
 
         recyclerViewContacts.setAdapter(contactsAdap);
 

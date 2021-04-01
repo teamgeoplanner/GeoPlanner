@@ -351,6 +351,11 @@ public class SilentDetailFragment extends Fragment {
         sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(Id.equals(callServiceReceiver.id)) {
+                    callServiceReceiver.silentService = false;
+                    callServiceReceiver.message = null;
+                    callServiceReceiver.id = null;
+                }
                 snapshot.child(Id).getRef().removeValue();
 
                 String locID = (String) snapshot.child(Id).child("locationID").getValue();

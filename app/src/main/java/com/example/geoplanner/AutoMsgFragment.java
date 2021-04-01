@@ -370,6 +370,9 @@ public class AutoMsgFragment extends Fragment {
         }
 
         else if (requestCode == 4) {
+            if(data==null)
+                return;
+
             Uri result = data.getData();
 
             // get the contact id from the Uri

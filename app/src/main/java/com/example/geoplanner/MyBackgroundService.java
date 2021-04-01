@@ -108,8 +108,11 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     Boolean bool7 = false;
     Boolean bool8 = false;
     Boolean bool9 = false;
+    Boolean bool10 = false;
 
     Boolean silentMode = false;
+
+    String silentLocId = null;
 
 
     public MyBackgroundService() {
@@ -632,6 +635,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                                 callServiceReceiver.silentService = true;
                                                 callServiceReceiver.message = dataSnapshot1.child("message").getValue().toString();
+                                                callServiceReceiver.id = dataSnapshot1.getKey();
+                                                silentLocId = dataSnapshot1.child("locationID").getValue().toString();
                                                 System.out.println("message: " + callServiceReceiver.message);
                                             } else {
                                                 // Ask the user to grant access
@@ -785,6 +790,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     }
 
     private void addToChecked(final String taskKey) {
+        System.out.println("task key:" + taskKey);
 
         Query query = taskReff;
 
@@ -801,6 +807,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                System.out.println("on data change called");
+
                                 Log.d("User key", child.getKey());
                                 Log.d("User val", child.child("tname").getValue().toString());
 
@@ -815,8 +823,8 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                 uncheck.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        if(bool2) {
-                                            System.out.println("on data change called");
+                                        if (bool2) {
+
 
                                             taskReff
                                                     .child("checked")
@@ -836,7 +844,6 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                     }
                                 });
-
                             }
                         }
 
@@ -897,23 +904,24 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
     public void onKeyExited(String key) {
 //        sendNotification("GeoPlanner", String.format("%s exited marked area", key));
 
-        if(silentMode) {
-            NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (n.isNotificationPolicyAccessGranted()) {
-                    AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                } else {
-                    // Ask the user to grant access
-                    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
-            }
-            callServiceReceiver.silentService = false;
-            callServiceReceiver.message = null;
-            silentMode = false;
-        }
+//        if(silentMode) {
+//            NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (n.isNotificationPolicyAccessGranted()) {
+//                    AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+//                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+//                } else {
+//                    // Ask the user to grant access
+//                    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                }
+//            }
+//            callServiceReceiver.silentService = false;
+//            callServiceReceiver.message = null;
+//            callServiceReceiver.id = null;
+//            silentMode = false;
+//        }
 
 
         bool7 = true;
@@ -936,13 +944,13 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
 
                         if(distance >= 100) {
-                            if(msglocEntered.contains(snapshot.getKey())) {
+                            if (msglocEntered.contains(snapshot.getKey())) {
                                 msglocEntered.remove(snapshot.getKey());
                                 System.out.println("msgloc: " + msglocEntered);
                                 sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
                             }
 
-                            if(msgexitlocEntered.contains(snapshot.getKey())) {
+                            if (msgexitlocEntered.contains(snapshot.getKey())) {
                                 msgexitlocEntered.remove(snapshot.getKey());
                                 System.out.println("msgexitloc: " + msgexitlocEntered);
 
@@ -951,7 +959,7 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                 FirebaseDatabase.getInstance().getReference("AutoMessage").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).orderByChild("locationID").equalTo(snapshot.getKey()).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                             if (bool8) {
                                                 final String message = dataSnapshot.child("message").getValue().toString();
 
@@ -985,6 +993,29 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                 });
 
 
+                            }
+
+                            if (silentLocId != null) {
+                                if (silentLocId.equals(snapshot.getKey())) {
+                                    if (silentMode) {
+                                        NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                            if (n.isNotificationPolicyAccessGranted()) {
+                                                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                                                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                                            } else {
+                                                // Ask the user to grant access
+                                                Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                startActivity(intent);
+                                            }
+                                        }
+                                        callServiceReceiver.silentService = false;
+                                        callServiceReceiver.message = null;
+                                        callServiceReceiver.id = null;
+                                        silentMode = false;
+                                    }
+                                }
                             }
                         }
                     }

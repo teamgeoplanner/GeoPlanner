@@ -170,6 +170,12 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
         sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String id = getSnapshots().getSnapshot(position).getKey();
+                if(id.equals(callServiceReceiver.id)) {
+                    callServiceReceiver.silentService = false;
+                    callServiceReceiver.message = null;
+                    callServiceReceiver.id = null;
+                }
                 getSnapshots().getSnapshot(position).getRef().removeValue();
 
                 locID = (String) getSnapshots().getSnapshot(position).child("locationID").getValue();
