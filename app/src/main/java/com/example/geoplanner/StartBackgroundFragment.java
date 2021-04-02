@@ -174,33 +174,45 @@ public class StartBackgroundFragment extends Fragment implements SharedPreferenc
     }
 
     private void checkPermissions() {
-        int permissionFineLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int permissionCoarseLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION);
-        int permissionBackgroundLocation = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        int permissionFineLocation = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCoarseLocation = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionBackgroundLocation = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION);
 
-        if (permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED || permissionBackgroundLocation!= PackageManager.PERMISSION_GRANTED) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(getContext());
-            adb.setTitle("Grant Permissions");
-            adb.setMessage("GeoPlanner requires location permissions to work in background.");
-            adb.setCancelable(false);
-            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(Uri.parse("package:" + getContext().getPackageName()));
-                    startActivity(intent);
-
-                    getActivity().finish();
-                    System.exit(0);
-                }
-            });
-            adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(getActivity(), MainPageActivity.class);
-                    startActivity(intent);
-                }
-            });
-            adb.show();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if(permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED || permissionBackgroundLocation!= PackageManager.PERMISSION_GRANTED) {
+                showAlert();
+            }
         }
+        else {
+            if (permissionFineLocation!= PackageManager.PERMISSION_GRANTED || permissionCoarseLocation!= PackageManager.PERMISSION_GRANTED) {
+                showAlert();
+            }
+        }
+
+    }
+
+    public void showAlert() {
+        AlertDialog.Builder adb = new AlertDialog.Builder(getContext());
+        adb.setTitle("Grant Permissions");
+        adb.setMessage("GeoPlanner requires location permissions to work in background.");
+        adb.setCancelable(false);
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
+                startActivity(intent);
+
+                getActivity().finish();
+                System.exit(0);
+            }
+        });
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getContext(), MainPageActivity.class);
+                startActivity(intent);
+            }
+        });
+        adb.show();
     }
 
     @Override

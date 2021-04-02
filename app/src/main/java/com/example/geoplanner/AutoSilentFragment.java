@@ -135,6 +135,11 @@ public class AutoSilentFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
 
+                        if(location == null) {
+                            Toast.makeText(getContext(), "Please provide location!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         addLocation();
 
                         bottomSheetDialog.dismiss();
@@ -149,61 +154,9 @@ public class AutoSilentFragment extends Fragment {
         });
 
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
         return view;
     }
 
-    //Swipe left or right to delete function
-    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            final int position = viewHolder.getAdapterPosition();
-
-            if (viewHolder.getBindingAdapter() == adapter) {
-                adapter.copyItem(position);
-
-//                adapter1.deleteItem(position);
-
-                Snackbar snackbar = Snackbar.make(recyclerView,"Auto-Silent Location Deleted", Snackbar.LENGTH_LONG);
-
-                snackbar.setAction("Undo", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        adapter.undoItem(position);
-                    }
-                }).show();
-
-                snackbar.addCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar transientBottomBar, int event) {
-                        if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
-                            adapter.clearDeleted();
-                        }
-
-                    }
-                });
-            }
-//            System.out.println(viewHolder.getBindingAdapter());
-        }
-
-        @Override
-        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                    .addBackgroundColor(ContextCompat.getColor(getContext(), R.color.red))
-                    .addActionIcon(R.drawable.ic_delete)
-                    .create()
-                    .decorate();
-
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
-    };
 
     private void addLocation() {
         if(location!=null) {

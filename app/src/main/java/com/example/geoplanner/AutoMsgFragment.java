@@ -9,7 +9,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,6 +109,9 @@ public class AutoMsgFragment extends Fragment {
                 final int[] i = {0};
                 entryexit = "enter";
 
+                contactsName.clear();
+                contactsNo.clear();
+
                 final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext(), R.style.BottomSheetDialogTheme);
 
                 //Bottom sheet view for adding tasks
@@ -134,6 +139,20 @@ public class AutoMsgFragment extends Fragment {
                 bottomSheetView.findViewById(R.id.btnSaveAutoMsg).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if(location == null) {
+                            Toast.makeText(getContext(), "Please provide location!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        if(TextUtils.isEmpty(message.getText().toString())) {
+                            message.setError("Message required!");
+                            return;
+                        }
+
+                        if(contactsName.isEmpty()) {
+                            Toast.makeText(getContext(), "Please provide contacts!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
                         addLocation();
 
@@ -288,8 +307,9 @@ public class AutoMsgFragment extends Fragment {
                                         .child(String.valueOf(newID))
                                         .setValue(automsgObj);
 
+
                                 for(int i = 0 ; i < contactsName.size() ; i++) {
-                                    autoMessageReff
+                                    FirebaseDatabase.getInstance().getReference("AutoMessage")
                                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                             .child(String.valueOf(newID))
                                             .child("contacts")
@@ -297,7 +317,7 @@ public class AutoMsgFragment extends Fragment {
                                             .child("number")
                                             .setValue(contactsNo.get(i));
 
-                                    autoMessageReff
+                                    FirebaseDatabase.getInstance().getReference("AutoMessage")
                                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                             .child(String.valueOf(newID))
                                             .child("contacts")
@@ -321,6 +341,24 @@ public class AutoMsgFragment extends Fragment {
                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                             .child("1")
                             .setValue(automsgObj);
+
+                    for(int i = 0 ; i < contactsName.size() ; i++) {
+                        FirebaseDatabase.getInstance().getReference("AutoMessage")
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .child("1")
+                                .child("contacts")
+                                .child(String.valueOf(i))
+                                .child("number")
+                                .setValue(contactsNo.get(i));
+
+                        FirebaseDatabase.getInstance().getReference("AutoMessage")
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .child("1")
+                                .child("contacts")
+                                .child(String.valueOf(i))
+                                .child("name")
+                                .setValue(contactsName.get(i));
+                    }
                 }
             }
 
@@ -416,6 +454,7 @@ public class AutoMsgFragment extends Fragment {
 
                             contactsName.add(name);
                             contactsNo.add(number);
+                            System.out.println("name"+contactsName+contactsNo);
                             contactsAdap.notifyDataSetChanged();
 
                         }
@@ -435,6 +474,7 @@ public class AutoMsgFragment extends Fragment {
 
                     contactsName.add(name);
                     contactsNo.add(number);
+                    System.out.println("name"+contactsName+contactsNo);
                     contactsAdap.notifyDataSetChanged();
                 }
             }

@@ -169,6 +169,11 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // update marked area list
+
+                msglocEntered.clear();
+                msgexitlocEntered.clear();
+                locEntered.clear();
+
                 List<MyLatLng> latLngList = new ArrayList<>();
 
                 for(DataSnapshot locationSnapshot : snapshot.getChildren()) {
@@ -691,7 +696,6 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                                                                         smsManager.sendTextMessage(contactNo, null, message + "\n\n" + "~ GeoPlanner", null, null);
                                                                         System.out.println("message");
                                                                         Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
-                                                                        sendNotification("GeoPlanner", "message sent");
                                                                     }
                                                                 }
                                                             }
@@ -705,7 +709,6 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                                     msglocEntered.add(dataSnapshot.child("locationID").getValue().toString());
                                                     System.out.println("locEntered" + msglocEntered);
-                                                    sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
                                                 } else if (dataSnapshot.child("sendAt").getValue().toString().equals("exit")) {
 
                                                     if (!msgexitlocEntered.contains(dataSnapshot.child("locationID").getValue().toString())) {
@@ -965,7 +968,6 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
                             if (msglocEntered.contains(snapshot.getKey())) {
                                 msglocEntered.remove(snapshot.getKey());
                                 System.out.println("msgloc: " + msglocEntered);
-                                sendNotification("GeoPlanner", "msgloc: " + msglocEntered);
                             }
 
                             if (msgexitlocEntered.contains(snapshot.getKey())) {
@@ -1009,6 +1011,15 @@ public class MyBackgroundService extends Service implements IOnLoadLocationListe
 
                                     }
                                 });
+
+                                final Handler handler2 = new Handler();
+                                handler2.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Do something after 5s = 5000ms
+                                        bool8 = false;
+                                    }
+                                }, 5000);
 
 
                             }

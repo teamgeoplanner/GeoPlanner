@@ -54,7 +54,7 @@ public class callServiceReceiver extends BroadcastReceiver {
         {
             ring =true;
             // Get the Caller's Phone Number
-            Toast.makeText(mContext, "ringing call : "+number, Toast.LENGTH_LONG).show();
+
         }
 
 
@@ -72,15 +72,16 @@ public class callServiceReceiver extends BroadcastReceiver {
             // If phone was ringing(ring=true) and not received(callReceived=false) , then it is a missed call
             if(ring==true&&callReceived==false)
             {
-                Toast.makeText(mContext, "Missed Call : "+number, Toast.LENGTH_LONG).show();
-                String Uname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                
                 try{
                     if(silentService) {
-                        smsManager.sendTextMessage(number,null,message+"\n\n"+"~ GeoPlanner",null,null);
-                        Toast.makeText(mContext,"Message Sent", Toast.LENGTH_LONG).show();
+                        if(!message.equals("")) {
+                            smsManager.sendTextMessage(number, null, message + "\n\n" + "~ GeoPlanner", null, null);
+                            Toast.makeText(mContext, "Message Sent", Toast.LENGTH_LONG).show();
+                        }
                     }
                     else {
-                        Toast.makeText(mContext,"Message Not Sent", Toast.LENGTH_LONG).show();
+
                     }
                 }catch (Exception e){
                     System.out.println("Erroring"+e);

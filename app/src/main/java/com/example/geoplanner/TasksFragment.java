@@ -146,12 +146,6 @@ public class TasksFragment extends Fragment {
                 View bottomSheetView = LayoutInflater.from(getContext())
                         .inflate(R.layout.layout_bottom_sheet, (LinearLayout)view.findViewById(R.id.bottomSheetContainer));
 
-                bottomSheetView.findViewById(R.id.btnAddDate).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(getContext(), "Add Date", Toast.LENGTH_SHORT).show();
-                    }
-                });
 
                 bottomSheetView.findViewById(R.id.btnAddLocation).setOnClickListener(new View.OnClickListener() {
                     @Override

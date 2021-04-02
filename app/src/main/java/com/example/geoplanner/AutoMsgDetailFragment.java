@@ -22,10 +22,13 @@ import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -91,6 +94,11 @@ public class AutoMsgDetailFragment extends Fragment {
 
     Boolean bool = false;
 
+    Spinner spinner;
+    String[] paths = {"entry", "exit"};
+
+    String entryexit;
+
     public AutoMsgDetailFragment() {
         // Required empty public constructor
     }
@@ -154,6 +162,34 @@ public class AutoMsgDetailFragment extends Fragment {
         recyclerViewContacts.setAdapter(contactsAdap);
 
 
+        spinner = (Spinner)view.findViewById(R.id.onEnterExit);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                R.layout.spinner_list, paths);
+
+        adapter.setDropDownViewResource(R.layout.spinner_list);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i) {
+                    case 0:
+                        entryexit = "enter";
+                        break;
+
+                    case 1:
+                        entryexit = "exit";
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
 
         FirebaseDatabase.getInstance().getReference("AutoMessage")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -165,6 +201,10 @@ public class AutoMsgDetailFragment extends Fragment {
                         locID = String.valueOf(snapshot.child("locationID").getValue());
 
                         txtMessage.setText(snapshot.child("message").getValue().toString());
+
+                        if(snapshot.child("sendAt").getValue().toString().equals("exit")) {
+                            spinner.setSelection(1);
+                        }
 
                         bool = true;
 
@@ -324,6 +364,12 @@ public class AutoMsgDetailFragment extends Fragment {
                 .child(Id)
                 .child("message")
                 .setValue(txtMessage.getText().toString());
+
+        FirebaseDatabase.getInstance().getReference("AutoMessage")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(Id)
+                .child("sendAt")
+                .setValue(entryexit);
 
         FirebaseDatabase.getInstance().getReference("AutoMessage")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())

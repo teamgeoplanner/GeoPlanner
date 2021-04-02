@@ -63,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
                     emailID.setError("Enter valid Email ID!");
+                    return;
                 }
 
                 if(TextUtils.isEmpty(password)){

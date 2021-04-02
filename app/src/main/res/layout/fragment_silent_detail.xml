@@ -67,7 +67,7 @@
                 android:drawableLeft="@drawable/ic_location_black"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/sf_pro_display_regular"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:paddingLeft="20dp"
                 android:paddingTop="10dp"
                 android:paddingRight="30dp"

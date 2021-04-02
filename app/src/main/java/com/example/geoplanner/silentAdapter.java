@@ -1,8 +1,10 @@
 package com.example.geoplanner;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +112,14 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             int pos = holder.getAdapterPosition();
                             getSnapshots().getSnapshot(pos).getRef().child("status").setValue("off");
+
+                            String Id = getSnapshots().getSnapshot(pos).getKey();
+
+                            if(Id.equals(callServiceReceiver.id)) {
+                                callServiceReceiver.silentService = false;
+                                callServiceReceiver.message = null;
+                                callServiceReceiver.id = null;
+                            }
                         }
 
                         @Override
@@ -167,114 +177,6 @@ public class silentAdapter extends FirebaseRecyclerAdapter<model2, silentAdapter
             silentClick = itemView.findViewById(R.id.silentArea);
             status = itemView.findViewById(R.id.switchStatus);
         }
-    }
-
-    Object deletedTask = null;
-    String deletedKey = null;
-
-    Object deletedLocation = null;
-    String deletedLocKey = null;
-
-    public void copyItem(final int position) {
-
-        Query sQuery = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                deletedTask = getSnapshots().getSnapshot(position).getValue();
-                deletedKey = getSnapshots().getSnapshot(position).getKey();
-
-                locID = (String) getSnapshots().getSnapshot(position).child("locationID").getValue();
-
-                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if(snapshot.hasChild(locID)) {
-                                    deletedLocation = snapshot.getValue();
-                                    deletedLocKey = locID;
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-                deleteItem(position);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    public void deleteItem(final int position){
-
-        Query sQuery = silentReff.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        sQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String id = getSnapshots().getSnapshot(position).getKey();
-                if(id.equals(callServiceReceiver.id)) {
-                    callServiceReceiver.silentService = false;
-                    callServiceReceiver.message = null;
-                    callServiceReceiver.id = null;
-                }
-                getSnapshots().getSnapshot(position).getRef().removeValue();
-
-                locID = (String) getSnapshots().getSnapshot(position).child("locationID").getValue();
-
-                FirebaseDatabase.getInstance().getReference("Location").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(locID)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                snapshot.getRef().removeValue();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    public void undoItem(final int position) {
-        FirebaseDatabase.getInstance().getReference("Silent")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(deletedKey)
-                .setValue(deletedTask);
-
-        deletedTask = null;
-        deletedKey = null;
-
-        if(deletedLocation!=null && deletedLocKey!=null) {
-            FirebaseDatabase.getInstance().getReference("Location")
-                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .setValue(deletedLocation);
-
-            deletedLocation = null;
-            deletedLocKey = null;
-        }
-    }
-
-    public void clearDeleted() {
-        deletedTask = null;
-        deletedKey = null;
-
-        deletedLocation = null;
-        deletedLocKey = null;
     }
 
 }
