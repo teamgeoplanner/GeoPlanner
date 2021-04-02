@@ -55,6 +55,7 @@ public class AutoMsgFragment extends Fragment {
 
     TextView locationName;
     EditText txtAutoMessage;
+    EditText none;
     EditText message;
 
     LatLng location;
